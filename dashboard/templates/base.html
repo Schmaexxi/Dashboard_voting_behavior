@@ -1,6 +1,7 @@
 {% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
+    <link rel="stylesheet" href="{% static "css/base.css" %}"/>
     <link rel="stylesheet" href="{% static "css/bootstrap/bootstrap.min.css" %}"/>
     <script href="{% static "javascript/bootstrap/bootstrap.min.js" %}"></script>
     {% block scripts %}
@@ -9,8 +10,7 @@
     <title>{% block title %}Dashboard - Voting Behavior{% endblock %}</title>
 </head>
 
-<body>
-
+<body class="pt-5">
     {% block navbar %}
     <!-- A grey horizontal navbar that becomes vertical on small screens -->
     <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
