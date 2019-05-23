@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from dashboard.models import Votings
 
 def index(request):
-    return render(request, 'dashboard/dashboard.html', {})
+    return render(request, 'dashboard/index.html', {})
 
 
 def detail(request):
