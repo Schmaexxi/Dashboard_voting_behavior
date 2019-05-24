@@ -1,12 +1,22 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 
+
 class Votings(models.Model):
     voting_id = models.AutoField(primary_key=True)
     json = JSONField(null=True, blank=True)
 
     def __repr__(self):
         return self.json.__repr__()
+
+
+class Individual_votings(models.Model):
+    id = models.AutoField(primary_key=True)
+    voting_id = models.IntegerField(unique=True)
+    voting = JSONField(null=True, blank=True)
+
+    def __repr__(self):
+        return self.voting.__repr__()
 
 """
 class Politician(models.Model):

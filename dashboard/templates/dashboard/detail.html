@@ -2,23 +2,10 @@
 {% block title %} Details {% endblock %}
 {% block content %}
     <div class="container">
-      <table class="table">
-        <thead>
-          <tr>
-              {% for key in all_objects.0.json.keys %}
-                <th>{{ key }}</th>
-              {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-        {% for object in all_objects %}
-          <tr>
-              {% for value in object.json.values %}
-                <td>{{ value }}</td>
-              {% endfor %}
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+    {% for object in abc %}
+        {% for key, value in object.voting.items %}
+        <p>{{ key }}{{ value }}</p>
+            {% endfor %}
+    {% endfor %}
     </div>
 {% endblock %}

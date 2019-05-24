@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load voting_behaviour_extras %}
+{% block title %} Details {% endblock %}
+{% block scripts %}
+   <script type="text/javascript">jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
+});</script>
+{% endblock %}
+{% block content %}
+    <div class="container">
+      <table class="table">
+        <thead>
+          <tr>
+              {% for key in all_objects.0.json.keys %}
+                <th>{{ key }}</th>
+              {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+        {% for object in all_objects %}
+          <tr class="clickable-row" data-href="{% url 'detail' object.json|dict_access:'id' %}">
+              {% for value in object.json.values %}
+                <td>{{ value }}</td>
+              {% endfor %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+{% endblock %}
