@@ -19,7 +19,7 @@
           </tr>
         </thead>
         <tbody>
-        {% for object in all_objects %}
+        {% for object in all_objects reversed %}
           <tr class="clickable-row" data-href="{% url 'detail' object.json|dict_access:'id' %}">
               {% for value in object.json.values %}
                 <td>{{ value }}</td>

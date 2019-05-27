@@ -3,8 +3,9 @@ from django.contrib.postgres.fields import JSONField
 
 
 class Votings(models.Model):
-    voting_id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True, default=0)
     json = JSONField(null=True, blank=True)
+    voting_id = models.IntegerField(unique=True)
 
     def __repr__(self):
         return self.json.__repr__()

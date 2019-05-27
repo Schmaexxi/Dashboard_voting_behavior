@@ -72,14 +72,14 @@ def insert_json(conn, database_table, column_name, path_to_json_file):
             conn.close()
 
 
-def insert_json_array(conn, database_table, column_name, path_to_json_file):
+def insert_json_array(conn, database_table, column_name):
     try:
         list_of_ods = []
-        new_voting = True
         counter = 0
-        for filename in os.listdir("./votings/individual"):
+        for filename in os.listdir("./scrape_votings/votings/individual"):
+            new_voting = True
             try:
-                with open(f"./votings/individual/{filename}") as file:
+                with open(f"./scrape_votings/votings/individual/{filename}") as file:
                     data = json.load(file)
 
                 id_ = filename[:filename.rfind(f".")]
@@ -90,13 +90,12 @@ def insert_json_array(conn, database_table, column_name, path_to_json_file):
                 id_ = int(id_)
                 list_of_ods.append(id_)
 
-
                 for i in ids:
-                    if id_ == i[0]:
-                        # print("id already exists")
+                    if id_ in i:
                         new_voting = False
 
                 if new_voting:
+                    print(new_voting, "ID: ", id_)
                     query_string = f"INSERT INTO {database_table} (voting_id, voting) VALUES ({id_}, '{json.dumps(data)}')"
                     # print(query_string)
 
@@ -117,8 +116,6 @@ def insert_json_array(conn, database_table, column_name, path_to_json_file):
             conn.close()
 
 
-
-
 if __name__ == '__main__':
 
     # TODO: specify relative path
@@ -133,5 +130,5 @@ if __name__ == '__main__':
     #insert_json(conn, db, column, path)
 
     insert_json_array(conn, "votings.public.dashboard_individual_votings",
-                      "voting",
-                      "/Users/maximilianlangknecht/PycharmProjects/Scrape_votings/votings/individual/593.json")
+                      "voting")
+

@@ -1,11 +1,55 @@
 {% extends "base.html" %}
 {% block title %} Details {% endblock %}
+{% block scripts %}
+    <script type="text/javascript">
+    $(document).ready(function(){
+$('#faction_select').on('change', function() {
+    if(this.value == "all") {
+        $(".faction_row").show()
+    }
+    else {
+        $(".faction_row").hide()
+        $("." + this.value).show()
+  }
+});
+    })
+    </script>
+{% endblock %}
 {% block content %}
     <div class="container">
-    {% for object in abc %}
-        {% for key, value in object.voting.items %}
-        <p>{{ key }}{{ value }}</p>
+
+    <h1>{{ specific_voting.json.topic }} - (Voting no. {{ specific_voting.json.id }})</h1>
+    <p>{{ specific_voting.json.description }}</p>
+    <select id="faction_select">
+        <option value="all">Show all</option>
+        {% for faction in all_factions.voting.keys %}
+            <option value="{{ faction|cut:" "|cut:"/" }}">{{ faction }}</option>
+        {% endfor %}
+    </select>
+        <table id="faction_table" class="table">
+        <thead>
+        <tr>
+        <th>Faction</th>
+            {% for attr in attributes %}
+                <th>{{ attr }}</th>
+           {% endfor %}
+        </tr>
+        </thead>
+            <tbody>
+            {% for faction, politicians in all_factions.voting.items %}
+            {% for politician in politicians|dictsort:"name" %}
+                <tr class="{{ faction|cut:" "|cut:"/" }} faction_row">
+                <td>{{ faction }}</td>
+                {% for attribute in politician.values %}
+                <td>
+                    {{ attribute }}
+                </td>
+                    {% endfor %}
+                </tr>
             {% endfor %}
-    {% endfor %}
+            {% endfor %}
+            </tbody>
+            </table>
+
     </div>
 {% endblock %}
