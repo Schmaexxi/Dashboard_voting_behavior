@@ -1,55 +1,115 @@
 {% extends "base.html" %}
 {% block title %} Details {% endblock %}
+
 {% block scripts %}
+     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <script type="text/javascript">
     $(document).ready(function(){
-$('#faction_select').on('change', function() {
-    if(this.value == "all") {
-        $(".faction_row").show()
-    }
-    else {
-        $(".faction_row").hide()
-        $("." + this.value).show()
-  }
+        $('#faction_select').on('change', function() {
+            if(this.value == "all") {
+                $(".faction_row").show()
+            }
+            else {
+                $(".faction_row").hide()
+                $("." + this.value).show()
+          }
+        });
+        var chart_data = {
+            labels: {{ vote_labels|safe }},
+            datasets: [{
+                label: '# of Votes',
+                data: {{ votes|safe }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+            };
+        var ctx = $('#chart');
+        var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'doughnut',
+        data: chart_data,
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+
+        $('#chart_select').on('change', function() {
+    chart.destroy();
+    chart = new Chart(ctx, {
+    type: this.value,
+    data: chart_data
+  });
 });
-    })
+
+    });
     </script>
+
 {% endblock %}
 {% block content %}
     <div class="container">
-
-    <h1>{{ specific_voting.json.topic }} - (Voting no. {{ specific_voting.json.id }})</h1>
+    <h2>{{ specific_voting.json.genre }}</h2>
+    <h1>{{ specific_voting.json.topic }}</h1>
     <p>{{ specific_voting.json.description }}</p>
-    <select id="faction_select">
+    <p>{{ specific_voting.json.date }}</p>
+    <div class="chart-container" style="width: 500px">
+        <canvas id="chart"></canvas>
+    </div>
+        <select id="faction_select">
         <option value="all">Show all</option>
         {% for faction in all_factions.voting.keys %}
             <option value="{{ faction|cut:" "|cut:"/" }}">{{ faction }}</option>
         {% endfor %}
     </select>
+    <select id="chart_select">
+        <option value="doughnut">Doughnut</option>
+        <option value="line">Line</option>
+        <option value="bar">Bar</option>
+        <option value="radar">Radar</option>
+        <option value="pie">Pie</option>
+        <option value="polarArea">Polar area</option>
+        <option value="bubble">Bubble</option>
+        <option value="scatter">Scatter</option>
+    </select>
         <table id="faction_table" class="table">
-        <thead>
-        <tr>
-        <th>Faction</th>
-            {% for attr in attributes %}
-                <th>{{ attr }}</th>
-           {% endfor %}
-        </tr>
-        </thead>
+            <thead>
+                <tr>
+                    <th>Faction</th>
+                    <th>Name</th>
+                    <th>Vote</th>
+                </tr>
+            </thead>
             <tbody>
             {% for faction, politicians in all_factions.voting.items %}
-            {% for politician in politicians|dictsort:"name" %}
-                <tr class="{{ faction|cut:" "|cut:"/" }} faction_row">
-                <td>{{ faction }}</td>
-                {% for attribute in politician.values %}
-                <td>
-                    {{ attribute }}
-                </td>
-                    {% endfor %}
-                </tr>
-            {% endfor %}
+                {% for politician in politicians|dictsort:"name" %}
+                    <tr class="{{ faction|cut:" "|cut:"/" }} faction_row">
+                        <td>{{ faction }}</td>
+                        <td>{{ politician.pre_name }} {{ politician.name }}</td>
+                        <td>{{ politician.vote }}</td>
+                    </tr>
+                {% endfor %}
             {% endfor %}
             </tbody>
             </table>
-
     </div>
 {% endblock %}
