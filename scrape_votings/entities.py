@@ -13,7 +13,7 @@ class Vote:
 
     def dict_repr(self):
         return {
-                "id": self.id,
+                "voting_id": self.id,
                 "genre": self.genre,
                 "topic": self.topic,
                 "date": self.date,

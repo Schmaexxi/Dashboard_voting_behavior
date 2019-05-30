@@ -1,0 +1,140 @@
+import psycopg2
+import json
+import os
+from django.db import DatabaseError
+
+vote_types = ['Ja', 'Nein','Enthalten', 'Nicht abg.', 'Nicht abg.(Gesetzlicher Mutterschutz)']
+
+
+# relational scheme
+def insert_relational_votings(conn, database_table):
+    curs = conn.cursor()
+    curs.execute(f"Select * FROM {database_table}")
+    colnames = [desc[0] for desc in curs.description]
+    colnames = sorted(colnames)
+
+    counter = 0
+
+    with open(f"./scrape_votings/votings/votings.json") as file:
+        data = json.load(file)
+
+    try:
+        cur = conn.cursor()
+
+        cur.execute(f"SELECT voting_id FROM {database_table}")
+        ids = cur.fetchall()
+
+        for voting in data['votings']:
+            new_voting = True
+            id_ = voting['voting_id']
+            for i in ids:
+                if int(id_) in i:
+                    new_voting = False
+            if new_voting:
+                # sort values to be in order with column names
+                keys = sorted(voting.keys())
+                result = []
+                # set json null values to empty strings
+                for key in keys:
+                    if key == 'votes':
+                        result.append(json.dumps(voting[key]))
+                    elif key == 'date':
+                        date = voting[key][-4:] + "-" + voting[key][3:5] + "-" + voting[key][:2]
+                        result.append(date)
+                    else:
+                        result.append(voting[key] if voting[key] is not None else "")
+
+                print("New voting - ID: ", id_)
+                print(result)
+                result_str = ','.join("'{0}'".format(x) for x in result)
+                print(result_str)
+                query_string = f"INSERT INTO {database_table} ({', '.join(colnames)}) VALUES ({result_str})"
+                print(query_string)
+                cur.execute(query_string)
+                conn.commit()
+                counter += 1
+            else:
+                print(" Voting with ID: ", id_, " already exists. Continue.")
+
+        print(f"inserted {counter} new votings")
+    except DatabaseError:
+        if conn:
+            conn.rollback()
+    finally:
+        if conn:
+            conn.close()
+
+
+def insert_politicians_and_votings(conn, database_table_politicians,
+                                   database_table_individual_votings,
+                                   db_politician_individual_voting):
+
+    curs = conn.cursor()
+    curs.execute(f"Select * FROM {database_table_politicians}")
+    colnames_politicians = [desc[0] for desc in curs.description]
+    print(colnames_politicians)
+    query_set = curs.fetchall()
+
+    with open(f"./scrape_votings/votings/individual/1.json") as file:
+        data = json.load(file)
+
+    print(query_set)
+    for filename in os.listdir("./scrape_votings/votings/individual"):
+        new_voting = True
+        with open(f"./scrape_votings/votings/individual/{filename}") as file:
+            data = json.load(file)
+
+        current_voting_id = filename[:filename.rfind(f".")]
+
+        for faction, politicians in data.items():
+            for politician in politicians:
+                new_politician = True
+                for item in query_set:
+                    if new_politician:
+                        if politician['name'] == item[colnames_politicians.index('name')] and \
+                                politician['pre_name'] == item[colnames_politicians.index('pre_name')] \
+                                and faction == item[colnames_politicians.index('faction')]:
+                            print("Politician already exists: ", item)
+                            new_politician = False
+                if new_politician:
+
+                    # Insert new politician
+                    print("New politician ", politician)
+                    query_string = f"INSERT INTO {database_table_politicians} (name, pre_name, faction) VALUES " \
+                        f"('{politician.get('name')}','{politician.get('pre_name')}', '{faction}') RETURNING id"
+                    print(query_string)
+                    curs.execute(query_string)
+                    politician_id = curs.fetchall()[0][0]
+                    print(politician_id)
+                    conn.commit()
+
+                    # Insert new individual voting
+                    query_string = f"INSERT INTO {database_table_individual_votings} (voting_id, vote) VALUES " \
+                        f"('{current_voting_id}', '{vote_types.index(politician['vote'])}') RETURNING id"
+                    print(query_string)
+                    curs.execute(query_string)
+                    individual_voting_id = curs.fetchall()[0][0]
+                    print(individual_voting_id)
+                    conn.commit()
+
+                    # Insert new relation between pilitician and individual voting
+                    query_string = f"INSERT INTO {db_politician_individual_voting} (individualvoting_id, politician_id) " \
+                        f"VALUES ('{individual_voting_id}', '{politician_id}')"
+                    print(query_string)
+                    curs.execute(query_string)
+                    conn.commit()
+
+
+if __name__ == '__main__':
+
+    conn = psycopg2.connect(dbname="votings", user="dashboard_voting_behavior", password="password")
+
+    db_voting = "votings.public.dashboard_voting"
+    db_politician = "votings.public.dashboard_politician"
+    db_individual_voting = "votings.public.dashboard_individualvoting"
+    db_politician_individual_voting = "votings.public.dashboard_individualvoting_politicians"
+
+    insert_relational_votings(conn, db_voting)
+    if conn.closed:
+        conn = psycopg2.connect(dbname="votings", user="dashboard_voting_behavior", password="password")
+    insert_politicians_and_votings(conn, db_politician, db_individual_voting, db_politician_individual_voting)

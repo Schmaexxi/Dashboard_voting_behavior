@@ -114,7 +114,7 @@ def get_votings():
             vote_description = i.find("div", attrs={"class": "bt-teaser-haupttext"}).text.strip()
 
             vote = Vote()
-            vote.id = vote_id
+            vote.id = str(vote_id)
             vote.votes = votes
             vote.date = vote_date
             vote.genre = vote_genre
@@ -128,7 +128,7 @@ def get_votings():
         # sort ids
         data["ids"] = sorted(data["ids"], reverse=True)
         # sort voting
-        data["votings"] = sorted(data["votings"], key=lambda x: x["id"], reverse=True)
+        data["votings"] = sorted(data["votings"], key=lambda x: x["voting_id"], reverse=True)
 
         # save to file
         json_dump(path_voting_dir + "/votings.json", data, cls=CustomEncoder)

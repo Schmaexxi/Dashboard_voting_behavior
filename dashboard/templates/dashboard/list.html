@@ -13,17 +13,23 @@
       <table class="table">
         <thead>
           <tr>
-              {% for key in all_objects.0.json.keys %}
-                <th>{{ key }}</th>
-              {% endfor %}
+            <th>ID</th>
+            <th>Topic</th>
+            <th>Genre</th>
+            <th>Datum</th>
+            <th>Beschreibung</th>
+            <th>Votes</th>
           </tr>
         </thead>
         <tbody>
-        {% for object in all_objects reversed %}
-          <tr class="clickable-row" data-href="{% url 'detail' object.json|dict_access:'id' %}">
-              {% for value in object.json.values %}
-                <td>{{ value }}</td>
-              {% endfor %}
+        {% for voting in all_votings %}
+          <tr class="clickable-row" data-href="{% url 'detail' voting.voting_id %}">
+            <td>{{ voting.voting_id }}</td>
+            <td>{{ voting.topic }}</td>
+            <td>{{ voting.genre }}</td>
+            <td>{{ voting.date }}</td>
+            <td>{{ voting.description }}</td>
+            <td>{{ voting.votes }}</td>
           </tr>
         {% endfor %}
         </tbody>
