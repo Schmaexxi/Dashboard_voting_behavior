@@ -11,14 +11,22 @@ class Voting(models.Model):
     votes = JSONField(null=True, blank=True)
 
 
-class IndividualVoting(models.Model):
-    voting_id = models.IntegerField()
-    individual_voting = models.ForeignKey(Voting, on_delete=models.CASCADE, null=True)
-    politicians = models.ManyToManyField('Politician')
-    vote = models.IntegerField(null=True)
-
-
 class Politician(models.Model):
     name = models.CharField(max_length=30)
     pre_name = models.CharField(max_length=30)
     faction = models.CharField(max_length=60)
+    voting = models.ManyToManyField(Voting,
+                                    through='IndividualVoting',
+                                    related_name="politicians")
+
+    def __repr__(self):
+        return f"{self.pre_name} {self.name } ({self.faction})"
+
+    def __unicode__(self):
+        return f"{self.pre_name} {self.name} ({self.faction})"
+
+
+class IndividualVoting(models.Model):
+    voting = models.ForeignKey(Voting, on_delete=models.CASCADE)
+    politician = models.ForeignKey(Politician, on_delete=models.CASCADE)
+    vote = models.IntegerField(null=True)

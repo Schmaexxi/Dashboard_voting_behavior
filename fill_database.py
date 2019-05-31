@@ -3,7 +3,10 @@ import json
 import os
 from django.db import DatabaseError
 
+# ToDo: regex for the terrible inconsistencies
 vote_types = ['Ja', 'Nein','Enthalten', 'Nicht abg.', 'Nicht abg.(Gesetzlicher Mutterschutz)']
+# lowercase items as temporary fix
+vote_types = [item.lower() for item in vote_types]
 
 
 # relational scheme
@@ -66,8 +69,7 @@ def insert_relational_votings(conn, database_table):
 
 
 def insert_politicians_and_votings(conn, database_table_politicians,
-                                   database_table_individual_votings,
-                                   db_politician_individual_voting):
+                                   db_individual_voting):
 
     curs = conn.cursor()
     curs.execute(f"Select * FROM {database_table_politicians}")
@@ -84,17 +86,25 @@ def insert_politicians_and_votings(conn, database_table_politicians,
         with open(f"./scrape_votings/votings/individual/{filename}") as file:
             data = json.load(file)
 
+        # get voting id from filename
         current_voting_id = filename[:filename.rfind(f".")]
+
+        # query existing politicians
+        curs.execute(f"Select * FROM {database_table_politicians}")
+        query_set = curs.fetchall()
 
         for faction, politicians in data.items():
             for politician in politicians:
                 new_politician = True
+                politician_id = 0
                 for item in query_set:
+                    # check if politician does already exist
                     if new_politician:
                         if politician['name'] == item[colnames_politicians.index('name')] and \
                                 politician['pre_name'] == item[colnames_politicians.index('pre_name')] \
                                 and faction == item[colnames_politicians.index('faction')]:
                             print("Politician already exists: ", item)
+                            politician_id = item[colnames_politicians.index('id')]
                             new_politician = False
                 if new_politician:
 
@@ -108,21 +118,13 @@ def insert_politicians_and_votings(conn, database_table_politicians,
                     print(politician_id)
                     conn.commit()
 
-                    # Insert new individual voting
-                    query_string = f"INSERT INTO {database_table_individual_votings} (voting_id, vote) VALUES " \
-                        f"('{current_voting_id}', '{vote_types.index(politician['vote'])}') RETURNING id"
-                    print(query_string)
-                    curs.execute(query_string)
-                    individual_voting_id = curs.fetchall()[0][0]
-                    print(individual_voting_id)
-                    conn.commit()
-
-                    # Insert new relation between pilitician and individual voting
-                    query_string = f"INSERT INTO {db_politician_individual_voting} (individualvoting_id, politician_id) " \
-                        f"VALUES ('{individual_voting_id}', '{politician_id}')"
-                    print(query_string)
-                    curs.execute(query_string)
-                    conn.commit()
+                # TODO: fix inconsistencies - see if statement in query string
+                # Insert new relation between pilitician and individual voting
+                query_string = f"INSERT INTO {db_individual_voting} (voting_id, politician_id, vote) " \
+                    f"VALUES ('{current_voting_id}', '{politician_id}', '{vote_types.index(politician.get('vote').lower()) if politician.get('vote').lower() in vote_types else 4 }')"
+                print(query_string)
+                curs.execute(query_string)
+                conn.commit()
 
 
 if __name__ == '__main__':
@@ -132,9 +134,8 @@ if __name__ == '__main__':
     db_voting = "votings.public.dashboard_voting"
     db_politician = "votings.public.dashboard_politician"
     db_individual_voting = "votings.public.dashboard_individualvoting"
-    db_politician_individual_voting = "votings.public.dashboard_individualvoting_politicians"
 
     insert_relational_votings(conn, db_voting)
     if conn.closed:
         conn = psycopg2.connect(dbname="votings", user="dashboard_voting_behavior", password="password")
-    insert_politicians_and_votings(conn, db_politician, db_individual_voting, db_politician_individual_voting)
+    insert_politicians_and_votings(conn, db_politician, db_individual_voting)
