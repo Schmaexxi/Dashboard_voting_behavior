@@ -7,8 +7,10 @@ from django.db import DatabaseError
 vote_types = ['Ja', 'Nein','Enthalten', 'Nicht abg.', 'Nicht abg.(Gesetzlicher Mutterschutz)']
 # lowercase items as temporary fix
 vote_types = [item.lower() for item in vote_types]
+# vote_types.index(politician.get('vote').lower()) if politician.get('vote').lower() in vote_types else 4
 
 
+# TODO: only insert from where you left off
 # relational scheme
 def insert_relational_votings(conn, database_table):
     curs = conn.cursor()
@@ -112,17 +114,17 @@ def insert_politicians_and_votings(conn, database_table_politicians,
                     print("New politician ", politician)
                     query_string = f"INSERT INTO {database_table_politicians} (name, pre_name, faction) VALUES " \
                         f"('{politician.get('name')}','{politician.get('pre_name')}', '{faction}') RETURNING id"
-                    print(query_string)
+                    # print(query_string)
                     curs.execute(query_string)
                     politician_id = curs.fetchall()[0][0]
-                    print(politician_id)
+                    # print(politician_id)
                     conn.commit()
 
                 # TODO: fix inconsistencies - see if statement in query string
                 # Insert new relation between pilitician and individual voting
                 query_string = f"INSERT INTO {db_individual_voting} (voting_id, politician_id, vote) " \
-                    f"VALUES ('{current_voting_id}', '{politician_id}', '{vote_types.index(politician.get('vote').lower()) if politician.get('vote').lower() in vote_types else 4 }')"
-                print(query_string)
+                    f"VALUES ('{current_voting_id}', '{politician_id}', '{politician.get('vote')}')"
+                # print(query_string)
                 curs.execute(query_string)
                 conn.commit()
 

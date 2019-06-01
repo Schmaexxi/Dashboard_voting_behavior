@@ -100,11 +100,13 @@
                 </tr>
             </thead>
             <tbody>
+            <!-- tuple of politician object - integer-->
             {% for politician in politicians %}
-                <tr class="{{ politician.faction|cut:" "|cut:"/" }} faction_row">
-                    <td>{{ politician.faction }}</td>
-                    <td>{{ politician.pre_name }} {{ politician.name }}</td>
-                    <td>{{ politician.vote }}</td>
+                <tr class="{{ politician.0.faction|cut:" "|cut:"/" }} faction_row">
+                    <td>{{ politician.0.faction }}</td>
+                    <td>{{ politician.0.pre_name }} {{ politician.0.name }}</td>
+                    <!-- vote-->
+                    <td>{{ politician.1 }}</td>
                 </tr>
             {% endfor %}
             </tbody>

@@ -29,4 +29,4 @@ class Politician(models.Model):
 class IndividualVoting(models.Model):
     voting = models.ForeignKey(Voting, on_delete=models.CASCADE)
     politician = models.ForeignKey(Politician, on_delete=models.CASCADE)
-    vote = models.IntegerField(null=True)
+    vote = models.CharField(max_length=80)
