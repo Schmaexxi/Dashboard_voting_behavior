@@ -59,9 +59,33 @@
     </script>
 {% endblock %}
 {% block content %}
-    <div class="container">
+    <div class="container" align="center">
+    <h1>Dashboard for Voting Behavior</h1>
         <div class="chart-container" style="width: 500px">
         <canvas id="chart"></canvas>
     </div>
+    <table class="table">
+    <thead>
+    <tr>
+    <th>Faction</th>
+        {% for val in faction_votes.values %}
+            {% if forloop.first %}
+                {% for vote in val.keys %}
+                      <th>{{ vote }}</th>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+        {% for key, val in faction_votes.items %}
+            <tr><td>{{ key }}</td>
+            {% for vote, count in val.items %}
+                <td>{{ count }}</td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
     </div>
 {% endblock %}
