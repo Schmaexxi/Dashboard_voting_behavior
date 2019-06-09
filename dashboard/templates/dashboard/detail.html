@@ -68,16 +68,16 @@
 {% endblock %}
 {% block content %}
     <div class="container">
-    <h2>{{ specific_voting.json.genre }}</h2>
-    <h1>{{ specific_voting.json.topic }}</h1>
-    <p>{{ specific_voting.json.description }}</p>
-    <p>{{ specific_voting.json.date }}</p>
+    <h2>{{ specific_voting.genre }}</h2>
+    <h1>{{ specific_voting.topic }}</h1>
+    <p>{{ specific_voting.description }}</p>
+    <p>{{ specific_voting.date }}</p>
     <div class="chart-container" style="width: 500px">
         <canvas id="chart"></canvas>
     </div>
         <select id="faction_select">
         <option value="all">Show all</option>
-        {% for faction in all_factions.voting.keys %}
+        {% for faction in all_factions %}
             <option value="{{ faction|cut:" "|cut:"/" }}">{{ faction }}</option>
         {% endfor %}
     </select>
@@ -100,14 +100,14 @@
                 </tr>
             </thead>
             <tbody>
-            {% for faction, politicians in all_factions.voting.items %}
-                {% for politician in politicians|dictsort:"name" %}
-                    <tr class="{{ faction|cut:" "|cut:"/" }} faction_row">
-                        <td>{{ faction }}</td>
-                        <td>{{ politician.pre_name }} {{ politician.name }}</td>
-                        <td>{{ politician.vote }}</td>
-                    </tr>
-                {% endfor %}
+            <!-- tuple of politician object - integer-->
+            {% for politician in politicians %}
+                <tr class="{{ politician.0.faction|cut:" "|cut:"/" }} faction_row">
+                    <td>{{ politician.0.faction }}</td>
+                    <td>{{ politician.0.pre_name }} {{ politician.0.name }}</td>
+                    <!-- vote-->
+                    <td>{{ politician.1 }}</td>
+                </tr>
             {% endfor %}
             </tbody>
             </table>

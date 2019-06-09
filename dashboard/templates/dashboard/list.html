@@ -9,24 +9,36 @@
 });</script>
 {% endblock %}
 {% block content %}
-    <div class="container">
-      <table class="table">
-        <thead>
-          <tr>
-              {% for key in all_objects.0.json.keys %}
-                <th>{{ key }}</th>
-              {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-        {% for object in all_objects reversed %}
-          <tr class="clickable-row" data-href="{% url 'detail' object.json|dict_access:'id' %}">
-              {% for value in object.json.values %}
-                <td>{{ value }}</td>
-              {% endfor %}
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Topic</th>
+        <th>Genre</th>
+        <th>Datum</th>
+        <th>Beschreibung</th>
+        <th>Votes</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for voting in all_votings %}
+      <tr>
+          <td>{% if voting.voting_id %}<a href="{% url 'detail' voting.voting_id %}"><button type="button" class="btn btn-primary">{{ voting.voting_id }}</button></a>{% else %} - {% endif %}</td>
+        <td>{% if voting.topic %}{{ voting.topic }}{% else %} - {% endif %}</td>
+        <td>{% if voting.genre %}{{ voting.genre }}{% else %} - {% endif %}</td>
+        <td>{% if voting.date %}{{ voting.date }}{% else %} - {% endif %}</td>
+        <td>{% if voting.description %}{{ voting.description }}{% else %} - {% endif %}</td>
+        <td>{% if voting.votes %}<table class="table"><thead><tr>
+                {% for key in voting.votes.keys %}
+                    <th>{{ key }}</th>
+                {% endfor %}</tr></thead><tbody><tr>
+                {% for val in voting.votes.values %}
+                    <td>{{ val }}</td>
+                {% endfor %}</tr></tbody></table>
+        {% else %} - {% endif %}</td>
+
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

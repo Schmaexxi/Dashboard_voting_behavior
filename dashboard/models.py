@@ -2,37 +2,31 @@ from django.db import models
 from django.contrib.postgres.fields import JSONField
 
 
-class Votings(models.Model):
-    id = models.AutoField(primary_key=True, default=0)
-    json = JSONField(null=True, blank=True)
-    voting_id = models.IntegerField(unique=True)
-
-    def __repr__(self):
-        return self.json.__repr__()
-
-
-class Individual_votings(models.Model):
-    id = models.AutoField(primary_key=True)
-    voting_id = models.IntegerField(unique=True)
-    voting = JSONField(null=True, blank=True)
-
-    def __repr__(self):
-        return self.voting.__repr__()
-
-"""
-class Politician(models.Model):
-    name = models.CharField(max_length=200)
-    pre_name = models.CharField(max_length=200)
-    birth_date = models.DateTimeField('date published')
-
-    def __str__(self):
-        return self.pre_name + " " + self.name
-
-
 class Voting(models.Model):
-    votes = models.ForeignKey(Politician, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
+    voting_id = models.IntegerField(primary_key=True, unique=True)
+    date = models.DateField()
+    genre = models.CharField(max_length=30)
+    topic = models.TextField(default="")
+    description = models.TextField()
+    votes = JSONField(null=True, blank=True)
 
-    def __str__(self):
-        return self.title
-"""
+
+class Politician(models.Model):
+    name = models.CharField(max_length=30)
+    pre_name = models.CharField(max_length=30)
+    faction = models.CharField(max_length=60)
+    voting = models.ManyToManyField(Voting,
+                                    through='IndividualVoting',
+                                    related_name="politicians")
+
+    def __repr__(self):
+        return f"{self.pre_name} {self.name } ({self.faction})"
+
+    def __unicode__(self):
+        return f"{self.pre_name} {self.name} ({self.faction})"
+
+
+class IndividualVoting(models.Model):
+    voting = models.ForeignKey(Voting, on_delete=models.CASCADE)
+    politician = models.ForeignKey(Politician, on_delete=models.CASCADE)
+    vote = models.CharField(max_length=80)

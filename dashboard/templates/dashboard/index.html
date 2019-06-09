@@ -1,6 +1,91 @@
 {% extends "base.html" %}
 {% block title %} Index {% endblock %}
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+
+        var chart_data = {
+            labels: {{ genre_labels|safe }},
+            datasets: [{
+                label: '# of Votes',
+                data: {{ genre_counts|safe }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+            };
+        var ctx = $('#chart');
+        var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'bar',
+        data: chart_data,
+            options: {
+                    legend: {
+            labels: {
+                fontColor: "red ",
+                fontSize: 18
+            },
+                        display: false
+        },
+                title:{
+                    display: true,
+                    text: "There have been {{ number_of_votings }} votings in the last six months."
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    });
+    </script>
+{% endblock %}
 {% block content %}
-    <div class="container">
+    <div class="container" align="center">
+    <h1>Dashboard for Voting Behavior</h1>
+        <div class="chart-container" style="width: 500px">
+        <canvas id="chart"></canvas>
+    </div>
+    <table class="table">
+    <thead>
+    <tr>
+    <th>Faction</th>
+        {% for val in faction_votes.values %}
+            {% if forloop.first %}
+                {% for vote in val.keys %}
+                      <th>{{ vote }}</th>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+        {% for key, val in faction_votes.items %}
+            <tr><td>{{ key }}</td>
+            {% for vote, count in val.items %}
+                <td>{{ count }}</td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
     </div>
 {% endblock %}
