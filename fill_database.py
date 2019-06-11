@@ -20,7 +20,7 @@ def insert_relational_votings(conn, database_table):
 
     counter = 0
 
-    with open(f"./scrape_votings/votings/votings.json") as file:
+    with open(f"./scrape_votings/votings/votings.json", encoding='utf-8') as file:
         data = json.load(file)
 
     try:
@@ -79,13 +79,8 @@ def insert_politicians_and_votings(conn, database_table_politicians,
     print(colnames_politicians)
     query_set = curs.fetchall()
 
-    with open(f"./scrape_votings/votings/individual/1.json") as file:
-        data = json.load(file)
-
-    print(query_set)
     for filename in os.listdir("./scrape_votings/votings/individual"):
-        new_voting = True
-        with open(f"./scrape_votings/votings/individual/{filename}") as file:
+        with open(f"./scrape_votings/votings/individual/{filename}", encoding='utf-8') as file:
             data = json.load(file)
 
         # get voting id from filename

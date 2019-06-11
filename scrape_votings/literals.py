@@ -6,7 +6,7 @@ quote_page = "https://www.bundestag.de/ajax/filterlist/de/" \
 path_voting_dir = "votings"
 path_individual_votings_dir = path_voting_dir + "/individual"
 
-path_logging_file = "logs/scrape_log.log"
+path_logging_file = "scrape_log.log"
 
 # TODO: get list of factions from html select field
 factions = [("CDU/CSU", "CDU%2FCSU"), ("SPD", "SPD"), ("AFD", "AfD"), ("FDP", "FDP"),

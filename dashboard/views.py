@@ -2,26 +2,25 @@ from django.shortcuts import render
 from dashboard.models import Voting, IndividualVoting, Politician
 import datetime
 from dateutil.relativedelta import relativedelta
-
+from django.db.models import Count
+from django.utils.timezone import now
 
 # TODO: show statistics of votings by party - e.g.: cdu  votes x times no y times yes z times ... for these votings
 def index(request):
-    date_today = datetime.date.today()
-    date_minus_six_months = date_today + relativedelta(months=-6)
-    latest_votings = Voting.objects.filter(date__range=(date_minus_six_months, date_today))
+    # get votings of last x months
+    date_minus_six_months = now() + relativedelta(months=-6)
+    latest_votings = Voting.objects.filter(date__range=(date_minus_six_months, now()))
     votings_count = latest_votings.count()
     voting_ids = [voting.voting_id for voting in latest_votings]
 
-    factions = IndividualVoting.objects.filter(voting_id__in=voting_ids).values_list('politician__faction', flat=True).distinct()
-    vote_options = IndividualVoting.objects.values_list('vote',flat=True).distinct()
-    a = {vote: 0 for vote in vote_options}
-    print(a)
-    faction_votes = {key: {'Ja': 0, 'Nein' : 0, 'Enthalten': 0, 'Nicht abg.': 0, 'Nicht abg.(Gesetzlicher Mutterschutz)': 0} for key in factions}
-
-    politician_votes = IndividualVoting.objects.filter(voting_id__in=voting_ids).values_list('politician__faction', 'vote')
-
+    factions = IndividualVoting.objects.filter(voting_id__in=voting_ids).values_list('politician__faction',
+                                                                                     flat=True).distinct()
+    print(factions)
+    vote_options = IndividualVoting.objects.values_list('vote', flat=True).distinct()
+    faction_votes = {key: {vote: 0 for vote in vote_options} for key in factions}
+    politician_votes = IndividualVoting.objects.filter(voting_id__in=voting_ids).values_list('politician__faction',
+                                                                                             'vote')
     total_votes = {i: IndividualVoting.objects.filter(voting_id__in=voting_ids, vote=i).count() for i in vote_options}
-    print(total_votes)
 
     for i in politician_votes:
         faction_votes[i[0]][i[1]] += 1
@@ -46,7 +45,8 @@ def index(request):
     return render(request, 'dashboard/index.html', {'number_of_votings': votings_count,
                                                     'genre_labels': genre_labels,
                                                     'genre_counts': genre_counts,
-                                                    'faction_votes': faction_votes})
+                                                    'faction_votes': faction_votes,
+                                                    'total_votes': total_votes})
 
 
 def list(request):
@@ -60,7 +60,8 @@ def detail(request, voting_id):
     pol_objects = Voting.objects.get(voting_id=voting_id).politicians.all()
     pol_objects.order_by('politician_id')
     # get respective politician's vote - order as previous query!
-    pol_votes = IndividualVoting.objects.filter(voting_id=voting_id).order_by('politician_id').values_list('vote', flat=True)
+    pol_votes = IndividualVoting.objects.filter(voting_id=voting_id).order_by('politician_id').values_list('vote',
+                                                                                                           flat=True)
     politicians = tuple(zip(pol_objects, pol_votes))
     factions = pol_objects.distinct().values_list('faction', flat=True)
     vote_labels = [key for key in specific_voting.votes.keys()]
@@ -78,3 +79,20 @@ def detail(request, voting_id):
                                                      "specific_voting": specific_voting,
                                                      "votes": votes,
                                                      "vote_labels": vote_labels})
+
+
+def genre_votes(request, name):
+    cells = IndividualVoting.objects.filter(voting__date__range=(now() + relativedelta(months=-6), now()),voting__genre=name).values('politician__faction','vote').annotate(Count('vote'))
+    print(cells)
+    objects = {}
+    for cell in cells:
+        objects.setdefault(cell['politician__faction'], {})[cell['vote']] = cell['vote__count']
+
+    print(objects)
+    list_header = {'vote': 'Vote'}
+    return render(request, 'dashboard/genre_votes.html', locals())
+
+
+def faction_votes(request, name):
+    # TODO: show votes per genre for indiviual factions
+    pass

@@ -57,6 +57,7 @@
         });
     });
     </script>
+    <style type="text/css">table tbody tr:last-child td{border-top: 5px solid aliceblue}</style>
 {% endblock %}
 {% block content %}
     <div class="container" align="center">
@@ -85,6 +86,12 @@
             {% endfor %}
             </tr>
         {% endfor %}
+            <tr>
+            <td>Total</td>
+                {% for count in total_votes.values %}
+                <td>{{ count }}</td>
+                {% endfor %}
+            </tr>
     </tbody>
     </table>
     </div>

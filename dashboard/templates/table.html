@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <table class="table">
+        <thead>
+        <tr>
+            {% block thead %}{% endblock %}
+        </tr>
+        </thead>
+    <tbody>
+    {% for object in objects %}
+        <tr>
+        {% block row %}{% endblock %}
+        </tr>
+    {% endfor %}
+    </tbody>
+
+    </table>
+
+{% endblock %}

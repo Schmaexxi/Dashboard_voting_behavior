@@ -32,15 +32,15 @@ all_votings = {}
 l = len(votings)
 
 for idx, voting in enumerate(votings):
-    if os.path.isfile(path_voting_dir + "/individual/" + str(voting["id"]) + ".json"):
-        log_str = "File ", str(voting.get("id")), ".json found. Skipping crawl."
+    if os.path.isfile(path_voting_dir + "/individual/" + str(voting["voting_id"]) + ".json"):
+        log_str = "File ", str(voting.get("voting_id")), ".json found. Skipping crawl."
         logger.info(log_str)
         continue  # TODO check for latest voting to use break instead of continue - not necessary though
-    print("New VOTING!!!! --- ID: ", str(voting.get("id")))
+    print("New VOTING!!!! --- ID: ", str(voting.get("voting_id")))
     for faction in factions:
-        if voting.get("id"):
+        if voting.get("voting_id"):
             # restart from there in case of a timeout
-            page = try_open(url.format(voting["id"], faction[1]))
+            page = try_open(url.format(voting["voting_id"], faction[1]))
             soup = BeautifulSoup(page, "html.parser")
 
             # get all divs (politicians)
@@ -64,5 +64,5 @@ for idx, voting in enumerate(votings):
                 all_votings.pop(faction[0])
             politician_count = len(divs)
 
-    json_dump("votings/individual/{}.json".format(voting["id"]), all_votings, cls=CustomEncoder)
+    json_dump("votings/individual/{}.json".format(voting["voting_id"]), all_votings, cls=CustomEncoder)
     print_progress(idx+1, l, prefix="Progress:", suffix="Complete", bar_length=50)
