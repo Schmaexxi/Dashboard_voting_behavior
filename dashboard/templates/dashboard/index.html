@@ -1,14 +1,51 @@
 {% extends "base.html" %}
 {% block title %} Index {% endblock %}
 {% block scripts %}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <script type="text/javascript">
     $(document).ready(function(){
 
+$(function() {
+
+    var start = moment().subtract(29, 'days');
+    var end = moment();
+
+    function cb(start, end) {
+        $('#report-range span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    $('#report-range').daterangepicker({
+        startDate: start,
+        endDate: end,
+        ranges: {
+           'Today': [moment(), moment()],
+           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+           'This Month': [moment().startOf('month'), moment().endOf('month')],
+           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, cb);
+
+    cb(start, end);
+
+});
+
+$('#report-range').on('apply.daterangepicker', function(ev, picker) {
+  //do something, like clearing an input
+    console.log(picker);
+  //alert(picker['endDate']['_d']);
+  //alert(picker['startDate']['_d']);
+});
+
         var chart_data = {
             labels: {{ genre_labels|safe }},
             datasets: [{
-                label: '# of Votes',
+                label: '# of Votings',
                 data: {{ genre_counts|safe }},
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
@@ -35,6 +72,15 @@
         type: 'bar',
         data: chart_data,
             options: {
+            'onClick' : (evt, item) => {
+                if(item.length > 0){
+                    var genre_name = item[0]._model['label'];
+                    var url = "{% url 'genre' name='123qwe' %}";
+                    //alert(url.replace('123qwe', genre_name));
+
+                    location.href = url.replace('123qwe', genre_name);
+                }
+            },
                     legend: {
             labels: {
                 fontColor: "red ",
@@ -55,6 +101,8 @@
                 }
             }
         });
+
+
     });
     </script>
     <style type="text/css">table tbody tr:last-child td{border-top: 5px solid aliceblue}</style>
@@ -62,9 +110,17 @@
 {% block content %}
     <div class="container" align="center">
     <h1>Dashboard for Voting Behavior</h1>
+    <div>
+        <div id="report-range" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; float: left;">
+            <i class="fa fa-calendar"></i>&nbsp;
+            <span></span> <i class="fa fa-caret-down"></i>
+        </div>
+
         <div class="chart-container" style="width: 500px">
-        <canvas id="chart"></canvas>
+            <canvas id="chart"></canvas>
+        </div>
     </div>
+    <h3>Individuelle Parteien und deren Abstimmungen</h3>
     <table class="table">
     <thead>
     <tr>
@@ -80,7 +136,7 @@
     </thead>
     <tbody>
         {% for key, val in faction_votes.items %}
-            <tr><td>{{ key }}</td>
+            <tr><td><a href="{% url 'faction' name=key %}"><button type="button" class="btn btn-primary">{{ key }}</button></a></td>
             {% for vote, count in val.items %}
                 <td>{{ count }}</td>
             {% endfor %}

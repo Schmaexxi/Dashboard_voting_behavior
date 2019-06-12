@@ -7,4 +7,5 @@ urlpatterns = [
     path('list/', views.list, name='list'),
     path('detail/<int:voting_id>', views.detail, name='detail'),
     path('genre/<str:name>', views.genre_votes, name='genre'),
+    path('faction/<path:name>', views.faction_votes, name='faction'),
 ]

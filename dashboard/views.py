@@ -1,9 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 from dashboard.models import Voting, IndividualVoting, Politician
 import datetime
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count
 from django.utils.timezone import now
+from urllib.parse import unquote
 
 # TODO: show statistics of votings by party - e.g.: cdu  votes x times no y times yes z times ... for these votings
 def index(request):
@@ -82,17 +83,28 @@ def detail(request, voting_id):
 
 
 def genre_votes(request, name):
-    cells = IndividualVoting.objects.filter(voting__date__range=(now() + relativedelta(months=-6), now()),voting__genre=name).values('politician__faction','vote').annotate(Count('vote'))
-    print(cells)
+    cells = IndividualVoting.objects.filter(voting__date__range=(now() + relativedelta(months=-6), now()),
+                                            voting__genre=name).values('politician__faction',
+                                                                       'vote').annotate(Count('vote'))
+    # print(cells)
     objects = {}
     for cell in cells:
         objects.setdefault(cell['politician__faction'], {})[cell['vote']] = cell['vote__count']
 
-    print(objects)
+    # print(objects)
     list_header = {'vote': 'Vote'}
     return render(request, 'dashboard/genre_votes.html', locals())
 
 
 def faction_votes(request, name):
+
+    name = unquote(name)
     # TODO: show votes per genre for indiviual factions
-    pass
+    cells = IndividualVoting.objects.filter(voting__date__range=(now() + relativedelta(months=-6), now()),
+                                            politician__faction=name).values('voting__genre',
+                                                                             'vote').annotate(Count('vote'))
+    objects = {}
+    for cell in cells:
+        objects.setdefault(cell['voting__genre'], {})[cell['vote']] = cell['vote__count']
+
+    return render(request, 'dashboard/faction_votes.html', locals())
