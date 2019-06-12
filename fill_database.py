@@ -125,14 +125,20 @@ def insert_politicians_and_votings(conn, database_table_politicians,
 
 
 if __name__ == '__main__':
+    os.environ.setdefault('PGDATABASE', 'votings')
+    os.environ.setdefault('PGUSER', 'dashboard_voting_behavior')
+    os.environ.setdefault('PGPASSWORD', 'password')
+    
+    for key in 'PGHOST PGPORT PGDATABASE PGUSER'.split():
+        print(key, os.environ.get(key, ''))
+	
+    conn = psycopg2.connect("")
 
-    conn = psycopg2.connect(dbname="votings", user="dashboard_voting_behavior", password="password")
-
-    db_voting = "votings.public.dashboard_voting"
-    db_politician = "votings.public.dashboard_politician"
-    db_individual_voting = "votings.public.dashboard_individualvoting"
+    db_voting = "dashboard_voting"
+    db_politician = "dashboard_politician"
+    db_individual_voting = "dashboard_individualvoting"
 
     insert_relational_votings(conn, db_voting)
     if conn.closed:
-        conn = psycopg2.connect(dbname="votings", user="dashboard_voting_behavior", password="password")
+        conn = psycopg2.connect("")
     insert_politicians_and_votings(conn, db_politician, db_individual_voting)
