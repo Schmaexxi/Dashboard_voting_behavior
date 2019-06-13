@@ -23,11 +23,12 @@ $(function() {
         endDate: end,
         ranges: {
            'Today': [moment(), moment()],
-           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
            'This Month': [moment().startOf('month'), moment().endOf('month')],
-           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+            'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment()],
+            'All time': ['12/03/2009', moment()]
         }
     }, cb);
 
@@ -38,6 +39,21 @@ $(function() {
 $('#report-range').on('apply.daterangepicker', function(ev, picker) {
   //do something, like clearing an input
     console.log(picker);
+    var startDate = picker['startDate'];
+    var endDate = picker['endDate'];
+    console.log(startDate.format('DD-MM-YYYY') + ' - ' + endDate.format('DD-MM-YYYY'));
+    document.getElementById('start_date').value = picker['startDate'].format('DD-MM-YYYY');
+    document.getElementById('end_date').value = picker['endDate'].format('DD-MM-YYYY');
+/*
+    const data = {
+        start_date: picker['startDate'].format('DD-MM-YYYY'),
+        end_date: picker['endDate'].format('DD-MM-YYYY'),
+        csrfmiddlewaretoken: "{{ csrf_token }}"};
+
+    $.get("{% url 'index' %}", data, function(data, status){
+        console.log(`status is ${status} and data is: ${data}`)
+    });
+    */
   //alert(picker['endDate']['_d']);
   //alert(picker['startDate']['_d']);
 });
@@ -90,7 +106,7 @@ $('#report-range').on('apply.daterangepicker', function(ev, picker) {
         },
                 title:{
                     display: true,
-                    text: "There have been {{ number_of_votings }} votings in the last six months."
+                    text: "There have been {{ number_of_votings }} votings from {{ start_date }} to {{ end_date }}."
                 },
                 scales: {
                     yAxes: [{
@@ -105,22 +121,33 @@ $('#report-range').on('apply.daterangepicker', function(ev, picker) {
 
     });
     </script>
-    <style type="text/css">table tbody tr:last-child td{border-top: 5px solid aliceblue}</style>
+    <style type="text/css">table tbody tr:last-child td{border-top: 5px solid aliceblue} input, label {
+    display:block;
+}</style>
 {% endblock %}
 {% block content %}
     <div class="container" align="center">
     <h1>Dashboard for Voting Behavior</h1>
     <div>
-        <div id="report-range" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; float: left;">
-            <i class="fa fa-calendar"></i>&nbsp;
-            <span></span> <i class="fa fa-caret-down"></i>
+        <div id="form-container" style="float: left;">
+            <div id="report-range" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc;">
+                <i class="fa fa-calendar"></i>&nbsp;
+                <span></span> <i class="fa fa-caret-down"></i>
+            </div>
+
+            <form action="{% url 'index' %}" method="post">
+                    {% csrf_token %}
+                    {{ form.as_table }}
+                <button type="submit" value="OK">OK</button>
+            </form>
         </div>
 
-        <div class="chart-container" style="width: 500px">
+        <div class="chart-container" style="width: 500px; float: right;">
             <canvas id="chart"></canvas>
         </div>
     </div>
-    <h3>Individuelle Parteien und deren Abstimmungen</h3>
+    <div style="clear: both;"></div>
+    <h3>Individual parties and respective votes</h3>
     <table class="table">
     <thead>
     <tr>
@@ -150,5 +177,6 @@ $('#report-range').on('apply.daterangepicker', function(ev, picker) {
             </tr>
     </tbody>
     </table>
+
     </div>
 {% endblock %}

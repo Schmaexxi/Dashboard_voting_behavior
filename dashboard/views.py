@@ -5,12 +5,33 @@ from dateutil.relativedelta import relativedelta
 from django.db.models import Count
 from django.utils.timezone import now
 from urllib.parse import unquote
-
+from django.views.decorators.http import require_http_methods
+from dashboard.forms import DateForm
 # TODO: show statistics of votings by party - e.g.: cdu  votes x times no y times yes z times ... for these votings
+
+
+@require_http_methods(["GET", "POST"])
 def index(request):
+
+    date_form = DateForm()
+
+    # datetime format must be'%d-%m-%Y'
+    start_date = date_form.fields['start_date'].initial
+    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+    end_date = date_form.fields['end_date'].initial
+    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+
+    if request.method == "POST":
+        date_form = DateForm(request.POST)
+        if date_form.is_valid():
+            start_date = date_form.cleaned_data['start_date']
+            end_date = date_form.cleaned_data['end_date']
+            print(start_date, end_date)
+        else:
+            print("data invalid")
+
     # get votings of last x months
-    date_minus_six_months = now() + relativedelta(months=-6)
-    latest_votings = Voting.objects.filter(date__range=(date_minus_six_months, now()))
+    latest_votings = Voting.objects.filter(date__range=(start_date, end_date))
     votings_count = latest_votings.count()
     voting_ids = [voting.voting_id for voting in latest_votings]
 
@@ -47,7 +68,10 @@ def index(request):
                                                     'genre_labels': genre_labels,
                                                     'genre_counts': genre_counts,
                                                     'faction_votes': faction_votes,
-                                                    'total_votes': total_votes})
+                                                    'total_votes': total_votes,
+                                                    'start_date': start_date,
+                                                    'end_date': end_date,
+                                                    'form': date_form})
 
 
 def list(request):
