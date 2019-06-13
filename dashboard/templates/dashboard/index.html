@@ -96,6 +96,10 @@ $('#report-range').on('apply.daterangepicker', function(ev, picker) {
 
                     location.href = url.replace('123qwe', genre_name);
                 }
+
+            },
+            'onHover' :(evt, item) => {
+                    evt.target.style.cursor = item[0] ? 'pointer' : 'default';
             },
                     legend: {
             labels: {
