@@ -118,7 +118,7 @@ def insert_politicians_and_votings(conn, database_table_politicians,
                 # TODO: fix inconsistencies - see if statement in query string
                 # Insert new relation between pilitician and individual voting
                 query_string = f"INSERT INTO {db_individual_voting} (voting_id, politician_id, vote) " \
-                    f"VALUES ('{current_voting_id}', '{politician_id}', '{politician.get('vote')}')"
+                    f"VALUES ('{current_voting_id}', '{politician_id}', '{'Nicht abgegeben' if politician.get('vote').lower().startswith('nicht abg') else politician.get('vote')}')"
                 # print(query_string)
                 curs.execute(query_string)
                 conn.commit()
