@@ -79,8 +79,12 @@ def insert_politicians_and_votings(conn, database_table_politicians,
     print(colnames_politicians)
     query_set = curs.fetchall()
 
-    for filename in os.listdir("./scrape_votings/votings/individual"):
-        with open(f"./scrape_votings/votings/individual/{filename}", encoding='utf-8') as file:
+    dir_ = "./scrape_votings/votings/individual"
+    num_votings= len([name for name in os.listdir(dir_) if os.path.isfile(os.path.join(dir_, name))])
+
+    for num, filename in enumerate(os.listdir(dir_)):
+        print(f"Progress: {num/num_votings*100} %")
+        with open(f"{dir_}/{filename}", encoding='utf-8') as file:
             data = json.load(file)
 
         # get voting id from filename
@@ -100,13 +104,13 @@ def insert_politicians_and_votings(conn, database_table_politicians,
                         if politician['name'] == item[colnames_politicians.index('name')] and \
                                 politician['pre_name'] == item[colnames_politicians.index('pre_name')] \
                                 and faction == item[colnames_politicians.index('faction')]:
-                            print("Politician already exists: ", item)
+                            # print("Politician already exists: ", item)
                             politician_id = item[colnames_politicians.index('id')]
                             new_politician = False
                 if new_politician:
 
                     # Insert new politician
-                    print("New politician ", politician)
+                    # print("New politician ", politician)
                     query_string = f"INSERT INTO {database_table_politicians} (name, pre_name, faction) VALUES " \
                         f"('{politician.get('name')}','{politician.get('pre_name')}', '{faction}') RETURNING id"
                     # print(query_string)
@@ -131,7 +135,6 @@ if __name__ == '__main__':
     
     for key in 'PGHOST PGPORT PGDATABASE PGUSER'.split():
         print(key, os.environ.get(key, ''))
-	
     conn = psycopg2.connect("")
 
     db_voting = "dashboard_voting"

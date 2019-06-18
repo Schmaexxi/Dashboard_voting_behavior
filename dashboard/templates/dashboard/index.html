@@ -1,62 +1,12 @@
 {% extends "base.html" %}
 {% block title %} Index {% endblock %}
 {% block scripts %}
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <script type="text/javascript">
     $(document).ready(function(){
 
-$(function() {
-
-    var start = moment().subtract(29, 'days');
-    var end = moment();
-
-    function cb(start, end) {
-        $('#report-range span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-    }
-
-    $('#report-range').daterangepicker({
-        startDate: start,
-        endDate: end,
-        ranges: {
-           'Today': [moment(), moment()],
-           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-           'This Month': [moment().startOf('month'), moment().endOf('month')],
-           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-            'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment()],
-            'All time': ['12/03/2009', moment()]
-        }
-    }, cb);
-
-    cb(start, end);
-
-});
-
-$('#report-range').on('apply.daterangepicker', function(ev, picker) {
-  //do something, like clearing an input
-    console.log(picker);
-    var startDate = picker['startDate'];
-    var endDate = picker['endDate'];
-    console.log(startDate.format('DD-MM-YYYY') + ' - ' + endDate.format('DD-MM-YYYY'));
-    document.getElementById('start_date').value = picker['startDate'].format('DD-MM-YYYY');
-    document.getElementById('end_date').value = picker['endDate'].format('DD-MM-YYYY');
-/*
-    const data = {
-        start_date: picker['startDate'].format('DD-MM-YYYY'),
-        end_date: picker['endDate'].format('DD-MM-YYYY'),
-        csrfmiddlewaretoken: "{{ csrf_token }}"};
-
-    $.get("{% url 'index' %}", data, function(data, status){
-        console.log(`status is ${status} and data is: ${data}`)
-    });
-    */
-  //alert(picker['endDate']['_d']);
-  //alert(picker['startDate']['_d']);
-});
 
         var chart_data = {
             labels: {{ genre_labels|safe }},
@@ -129,22 +79,12 @@ $('#report-range').on('apply.daterangepicker', function(ev, picker) {
     display:block;
 }</style>
 {% endblock %}
+{% block request_path %}{{ request.path }}{% endblock %}
+
 {% block content %}
     <div class="container" align="center">
     <h1>Dashboard for Voting Behavior</h1>
     <div>
-        <div id="form-container" style="float: left;">
-            <div id="report-range" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc;">
-                <i class="fa fa-calendar"></i>&nbsp;
-                <span></span> <i class="fa fa-caret-down"></i>
-            </div>
-
-            <form action="{% url 'index' %}" method="post">
-                    {% csrf_token %}
-                    {{ form.as_table }}
-                <button type="submit" value="OK">OK</button>
-            </form>
-        </div>
 
         <div class="chart-container" style="width: 500px; float: right;">
             <canvas id="chart"></canvas>
@@ -181,6 +121,5 @@ $('#report-range').on('apply.daterangepicker', function(ev, picker) {
             </tr>
     </tbody>
     </table>
-
     </div>
 {% endblock %}

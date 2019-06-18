@@ -4,9 +4,15 @@
 <head>
     <link rel="stylesheet" href="{% static "css/base.css" %}"/>
     <link rel="stylesheet" href="{% static "css/bootstrap/bootstrap.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <!-- jquery before bootstrap!!!-->
     <script type="text/javascript" src="{% static "javascript/jquery-3.4.1.js" %}"></script>
     <script type="text/javascript" src="{% static "javascript/bootstrap/bootstrap.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "javascript/base.js" %}"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
     {% block scripts %}
 
     {% endblock %}
@@ -28,9 +34,6 @@
               <a class="nav-link" href="{% url 'detail' voting_id='5' %}">Detail View</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'admin:index'%}">Admin View</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" href="{% url 'list'%}">List of votings</a>
             </li>
               <li class="nav-item">
@@ -39,12 +42,55 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'faction' name='AFD' %}">Faction View</a>
             </li>
+
+              <li class="nav-item">
+              <a class="nav-link" href="{% url 'admin:index'%}">Admin View</a>
+            </li>
+
+            <li class="nav-item">
+                <button type="button" id="sidebarCollapse" class="btn btn-info">
+                <i class="fas fa-align-left"></i>
+                <span>Toggle Sidebar</span>
+            </button>
+              </li>
           </ul>
         </div>
+
     </nav>
     {% endblock %}
+
+    <div class="wrapper">
+    <!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h3>Bootstrap Sidebar</h3>
+        </div>
+
+        <ul class="list-unstyled components">
+            <li class="active">
+                <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Datetimepicker</a>
+                <div class="collapse list-unstyled" id="homeSubmenu">
+    <div id="form-container" style="float: left;">
+            <div id="report-range" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc;">
+                <i class="fa fa-calendar"></i>&nbsp;
+                <span></span> <i class="fa fa-caret-down"></i>
+            </div>
+
+            <form action="{% block request_path %}{% url 'index' %}{% endblock %}" method="post">
+                    {% csrf_token %}
+                    {{ date_form.as_table }}
+                <button type="submit" value="OK">OK</button>
+            </form>
+        </div>
+                </div>
+
+        </ul>
+    </nav>
     <div id="content">
         {% block content %}{% endblock %}
     </div>
+</div>
+
+
 </body>
 </html>

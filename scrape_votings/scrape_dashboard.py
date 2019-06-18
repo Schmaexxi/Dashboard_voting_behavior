@@ -104,7 +104,7 @@ def get_votings():
 
             # some votings do not have a genre assigned
             if meta_data_tag.h3.span is None:
-                vote_genre = None
+                vote_genre = "Ohne Genre"
             else:
                 vote_genre = meta_data_tag.h3.span.text.strip()
 

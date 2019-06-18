@@ -30,7 +30,6 @@ def index(request):
         else:
             print("data invalid")
 
-    # get votings of last x months
     latest_votings = Voting.objects.filter(date__range=(start_date, end_date))
     votings_count = latest_votings.count()
     voting_ids = [voting.voting_id for voting in latest_votings]
@@ -71,11 +70,29 @@ def index(request):
                                                     'total_votes': total_votes,
                                                     'start_date': start_date,
                                                     'end_date': end_date,
-                                                    'form': date_form})
+                                                    'date_form': date_form})
 
 
 def list(request):
-    all_votings = Voting.objects.all().order_by('date')
+    date_form = DateForm()
+
+    # datetime format must be'%d-%m-%Y'
+    start_date = date_form.fields['start_date'].initial
+    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+    end_date = date_form.fields['end_date'].initial
+    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+
+    if request.method == "POST":
+        date_form = DateForm(request.POST)
+        if date_form.is_valid():
+            start_date = date_form.cleaned_data['start_date']
+            end_date = date_form.cleaned_data['end_date']
+            print(start_date, end_date)
+        else:
+            print("data invalid")
+
+    all_votings = Voting.objects.filter(date__range=(start_date, end_date)).order_by('-date')
+
     return render(request, 'dashboard/list.html', {'all_votings': all_votings})
 
 
@@ -107,7 +124,25 @@ def detail(request, voting_id):
 
 
 def genre_votes(request, name):
-    cells = IndividualVoting.objects.filter(voting__date__range=(now() + relativedelta(months=-6), now()),
+
+    date_form = DateForm()
+
+    # datetime format must be'%d-%m-%Y'
+    start_date = date_form.fields['start_date'].initial
+    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+    end_date = date_form.fields['end_date'].initial
+    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+
+    if request.method == "POST":
+        date_form = DateForm(request.POST)
+        if date_form.is_valid():
+            start_date = date_form.cleaned_data['start_date']
+            end_date = date_form.cleaned_data['end_date']
+            print(start_date, end_date)
+        else:
+            print("data invalid")
+
+    cells = IndividualVoting.objects.filter(voting__date__range=(start_date, end_date),
                                             voting__genre=name).values('politician__faction',
                                                                        'vote').annotate(Count('vote'))
     # print(cells)
@@ -122,9 +157,26 @@ def genre_votes(request, name):
 
 def faction_votes(request, name):
 
+    date_form = DateForm()
+
+    # datetime format must be'%d-%m-%Y'
+    start_date = date_form.fields['start_date'].initial
+    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+    end_date = date_form.fields['end_date'].initial
+    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+
+    if request.method == "POST":
+        date_form = DateForm(request.POST)
+        if date_form.is_valid():
+            start_date = date_form.cleaned_data['start_date']
+            end_date = date_form.cleaned_data['end_date']
+            print(start_date, end_date)
+        else:
+            print("data invalid")
+
     name = unquote(name)
     # TODO: show votes per genre for indiviual factions
-    cells = IndividualVoting.objects.filter(voting__date__range=(now() + relativedelta(months=-6), now()),
+    cells = IndividualVoting.objects.filter(voting__date__range=(start_date, end_date),
                                             politician__faction=name).values('voting__genre',
                                                                              'vote').annotate(Count('vote'))
     objects = {}

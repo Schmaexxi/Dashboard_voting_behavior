@@ -2,6 +2,8 @@
 {% load voting_behaviour_extras %}
 {% block title %} Votes for {{ genre }} {% endblock %}
 
+{% block request_path %}{{ request.path }}{% endblock %}
+
 {% block content %}
     <h2> Faction: {{ name }}</h2>
 <table class="table">
