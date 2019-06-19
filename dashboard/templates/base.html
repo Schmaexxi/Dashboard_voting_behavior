@@ -76,10 +76,10 @@
                 <span></span> <i class="fa fa-caret-down"></i>
             </div>
 
-            <form action="{% block request_path %}{% url 'index' %}{% endblock %}" method="post">
+            <form id="datetime_picker_form" action="{% block request_path %}{% url 'index' %}{% endblock %}" method="post">
                     {% csrf_token %}
                     {{ date_form.as_table }}
-                <button type="submit" value="OK">OK</button>
+                <button id="datetime_picker_submit" type="submit" value="OK">OK</button>
             </form>
         </div>
                 </div>

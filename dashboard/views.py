@@ -123,6 +123,7 @@ def detail(request, voting_id):
                                                      "vote_labels": vote_labels})
 
 
+@require_http_methods(["GET", "POST"])
 def genre_votes(request, name):
 
     date_form = DateForm()
@@ -155,6 +156,7 @@ def genre_votes(request, name):
     return render(request, 'dashboard/genre_votes.html', locals())
 
 
+@require_http_methods(["GET", "POST"])
 def faction_votes(request, name):
 
     date_form = DateForm()
