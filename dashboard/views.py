@@ -93,7 +93,7 @@ def list(request):
 
     all_votings = Voting.objects.filter(date__range=(start_date, end_date)).order_by('-date')
 
-    return render(request, 'dashboard/list.html', {'all_votings': all_votings})
+    return render(request, 'dashboard/list.html', locals())
 
 
 def detail(request, voting_id):
@@ -186,3 +186,30 @@ def faction_votes(request, name):
         objects.setdefault(cell['voting__genre'], {})[cell['vote']] = cell['vote__count']
 
     return render(request, 'dashboard/faction_votes.html', locals())
+
+
+@require_http_methods(['GET', 'POST'])
+def politician(request, politician_id):
+    date_form = DateForm()
+
+    # datetime format must be'%d-%m-%Y'
+    start_date = date_form.fields['start_date'].initial
+    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+    end_date = date_form.fields['end_date'].initial
+    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+
+    if request.method == "POST":
+        date_form = DateForm(request.POST)
+        if date_form.is_valid():
+            start_date = date_form.cleaned_data['start_date']
+            end_date = date_form.cleaned_data['end_date']
+            print(start_date, end_date)
+        else:
+            print("data invalid")
+
+    politician_query = Politician.objects.filter(id=politician_id)
+    politician = politician_query[0] if len(politician_query) != 0 else None
+
+    votings = Voting.objects.filter(politicians__id=politician_id, date__range=(start_date, end_date))
+
+    return render(request, 'dashboard/politician.html', locals())
