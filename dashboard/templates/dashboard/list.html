@@ -1,48 +1,10 @@
 {% extends "base.html" %}
 {% load voting_behaviour_extras %}
 {% block title %} Details {% endblock %}
-{% block scripts %}
-   <script type="text/javascript">jQuery(document).ready(function($) {
-    $(".clickable-row").click(function() {
-        window.location = $(this).data("href");
-    });
-});</script>
-{% endblock %}
 
 {% block request_path %}{{ request.path }}{% endblock %}
 
 {% block content %}
     <h2>Votings from {{ start_date }} to {{ end_date }}</h2>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Topic</th>
-        <th>Genre</th>
-        <th>Datum</th>
-        <th>Beschreibung</th>
-        <th>Votes</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for voting in all_votings %}
-      <tr>
-          <td>{% if voting.voting_id %}<a href="{% url 'detail' voting.voting_id %}"><button type="button" class="btn btn-primary">{{ voting.voting_id }}</button></a>{% else %} - {% endif %}</td>
-        <td>{% if voting.topic %}{{ voting.topic }}{% else %} - {% endif %}</td>
-        <td>{% if voting.genre %}{{ voting.genre }}{% else %} - {% endif %}</td>
-        <td>{% if voting.date %}{{ voting.date }}{% else %} - {% endif %}</td>
-        <td>{% if voting.description %}{{ voting.description }}{% else %} - {% endif %}</td>
-        <td>{% if voting.votes %}<table class="table"><thead><tr>
-                {% for key in voting.votes.keys %}
-                    <th>{{ key }}</th>
-                {% endfor %}</tr></thead><tbody><tr>
-                {% for val in voting.votes.values %}
-                    <td>{{ val }}</td>
-                {% endfor %}</tr></tbody></table>
-        {% else %} - {% endif %}</td>
-
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+    {% include "dashboard/voting_table.html" with votings=all_votings%}
 {% endblock %}

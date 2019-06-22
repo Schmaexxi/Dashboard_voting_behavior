@@ -209,7 +209,14 @@ def politician(request, politician_id):
 
     politician_query = Politician.objects.filter(id=politician_id)
     politician = politician_query[0] if len(politician_query) != 0 else None
-
     votings = Voting.objects.filter(politicians__id=politician_id, date__range=(start_date, end_date))
+
+    vote_stats = IndividualVoting.objects.filter(politician__id=politician_id,
+                                                 voting__date__range=(start_date,
+                                                                      end_date)).values('voting__genre', 'vote').annotate(Count('vote'))
+
+    objects = {}
+    for cell in vote_stats:
+        objects.setdefault(cell['voting__genre'], {})[cell['vote']] = cell['vote__count']
 
     return render(request, 'dashboard/politician.html', locals())

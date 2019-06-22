@@ -6,33 +6,7 @@
 
 {% block content %}
     <h2>Abstimmungen von {{ start_date }} bis {{ end_date }}</h2>
-    <h2> Person: {{ politician.pre_name }} {{ politician.name }}</h2>
-    <table class="table">
-    <thead>
-    <tr>
-        {% for vote in votings %}
-            {% if forloop.first %}
-                    <th>ID</th>
-                    <th>Datum</th>
-                    <th>Beschreibung</th>
-                    <th>Topic</th>
-                    <th>Genre</th>
-                    <th>Abstimmungen</th>
-            {% endif %}
-        {% endfor %}
-    </tr>
-    </thead>
-    <tbody>
-        {% for vote in votings %}
-        <tr>
-            <td>{{ vote.voting_id }}</td>
-            <td>{{ vote.date }}</td>
-            <td>{{ vote.description }}</td>
-            <td>{{ vote.topic }}</td>
-            <td>{{ vote.genre }}</td>
-            <td>{{ vote.votes }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-    </table>
+    <h2> Person: {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }})</h2>
+    {{ objects }}
+    {% include "dashboard/voting_table.html" with votings=votings%}
 {% endblock %}
