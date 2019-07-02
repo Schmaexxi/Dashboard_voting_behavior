@@ -1,12 +1,5 @@
 $(document).ready(function () {
 
-    $('#sidebarCollapse').on('click', function () {
-        $('#sidebar').toggleClass('active');
-    });
-
-
-
-
     $(function() {
 
         var start = moment().subtract(29, 'days');

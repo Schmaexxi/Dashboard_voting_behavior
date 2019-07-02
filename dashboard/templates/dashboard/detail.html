@@ -68,21 +68,19 @@
 {% endblock %}
 {% block request_path %}{{ request.path }}{% endblock %}
 {% block content %}
-    <div class="container">
     <h2>{{ specific_voting.genre }}</h2>
     <h1>{{ specific_voting.topic }}</h1>
     <p>{{ specific_voting.description }}</p>
     <p>{{ specific_voting.date }}</p>
-    <div class="chart-container" style="width: 500px">
+    <div class="chart-container" style="width: 800px; margin:auto">
         <canvas id="chart"></canvas>
-    </div>
-        <select id="faction_select">
-        <option value="all">Show all</option>
+    <select id="faction_select" class="browser-default custom-select" style="width: 50%;float: left;">
+        <option value="all">Alle Parteien anzeigen</option>
         {% for faction in all_factions %}
             <option value="{{ faction|cut:" "|cut:"/" }}">{{ faction }}</option>
         {% endfor %}
     </select>
-    <select id="chart_select">
+    <select id="chart_select" class="browser-default custom-select" style="width: 50%;float: left;">
         <option value="doughnut">Doughnut</option>
         <option value="line">Line</option>
         <option value="bar">Bar</option>
@@ -92,6 +90,8 @@
         <option value="bubble">Bubble</option>
         <option value="scatter">Scatter</option>
     </select>
+    </div>
+
         <table id="faction_table" class="table">
             <thead>
                 <tr>
@@ -103,14 +103,17 @@
             <tbody>
             <!-- tuple of politician object - integer-->
             {% for politician in politicians %}
-                <tr class="{{ politician.0.faction|cut:" "|cut:"/" }} faction_row">
+                <tr class="{{ politician.0.faction|cut:" "|cut:"/" }} faction_row" >
                     <td><button type="submit" form="datetime_picker_form" formaction="{% url 'faction' name=politician.0.faction %}" class="btn btn-primary">{{ politician.0.faction }}</button></td>
                     <td><button type="submit" form="datetime_picker_form" formaction="{% url 'politician' politician_id=politician.0.id %}" class="btn btn-primary">{{ politician.0.pre_name }} {{ politician.0.name }}</button></td>
                     <!-- vote-->
-                    <td>{{ politician.1 }}</td>
+                <!-- TODO: coloring does not work somehow -->
+                    <td {% if politician.1 == 'Ja' %} style="color: green;" {% elif politician.1 == 'Nein' %} style="color: red;" {% elif politician.1 == 'Nicht abgegeben' %} style="color: grey"; {% elif politician.1 == 'Enthalten' %} style="color: brown;" {% endif %}>
+                        {{ politician.1 }}
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
             </table>
-    </div>
+
 {% endblock %}

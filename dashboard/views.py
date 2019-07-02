@@ -97,6 +97,7 @@ def list(request):
 
 
 def detail(request, voting_id):
+
     specific_voting = Voting.objects.filter(voting_id=voting_id)[0]
     # get politicians related to this specific voting
     pol_objects = Voting.objects.get(voting_id=voting_id).politicians.all()
@@ -109,12 +110,8 @@ def detail(request, voting_id):
     vote_labels = [key for key in specific_voting.votes.keys()]
     votes = [int(n) for n in specific_voting.votes.values()]
     specific_voting = Voting.objects.filter(voting_id=voting_id)[0]
-    print(Voting.objects.filter(voting_id=voting_id).values_list('date'))
     end_date = datetime.date(2019, 3, 31)
     start_date = datetime.date(2017, 1, 1)
-    print(start_date)
-    print(end_date)
-    print(len(Voting.objects.filter(date__range=(start_date, end_date))))
 
     return render(request, 'dashboard/detail.html', {'all_factions': factions,
                                                      'politicians': politicians,
@@ -209,14 +206,40 @@ def politician(request, politician_id):
 
     politician_query = Politician.objects.filter(id=politician_id)
     politician = politician_query[0] if len(politician_query) != 0 else None
+    if politician is None:
+        response = f"Ein Politiker mit der ID {politician_id} konnte nicht gefunden werden."
+        return render(request, 'dashboard/error.html', {'error': response})
+
+    last_voting = Voting.objects.filter(politicians__id=politician_id).order_by('-date').values('date')
+    if len(last_voting) > 0:
+        last_voting = last_voting[0]
+
     votings = Voting.objects.filter(politicians__id=politician_id, date__range=(start_date, end_date))
 
+    individual_votes = IndividualVoting.objects.filter(politician__id=politician_id,
+                                                       voting_id__in=votings.values_list('voting_id',
+                                                                                         flat=True)).values_list('vote',
+                                                                                                                 flat=True)
+
+    voting_count = votings.count()
     vote_stats = IndividualVoting.objects.filter(politician__id=politician_id,
                                                  voting__date__range=(start_date,
-                                                                      end_date)).values('voting__genre', 'vote').annotate(Count('vote'))
+                                                                      end_date)).values('voting__genre',
+                                                                                        'vote').annotate(Count('vote'))
 
     objects = {}
     for cell in vote_stats:
         objects.setdefault(cell['voting__genre'], {})[cell['vote']] = cell['vote__count']
+
+
+    genre_counts_yes = [options.get('Ja') if options.get('Ja') else 0 for options in objects.values()]
+    genre_counts_no = [options.get('Nein') if options.get('Nein') else 0 for options in objects.values()]
+    genre_counts_not_turned_in = [options.get('Nicht abgegeben') if options.get('Nicht abgegeben') else 0 for options in objects.values()]
+    genre_counts_enthalten = [options.get('Enthalten') if options.get('Enthalten') else 0 for options in objects.values()]
+    genre_options_count = [genre_counts_yes, genre_counts_no, genre_counts_not_turned_in, genre_counts_enthalten]
+
+    genre_counts = [value for value in objects.values()]
+
+    genre_labels = [key for key in objects.keys()]
 
     return render(request, 'dashboard/politician.html', locals())

@@ -1,12 +1,86 @@
 {% extends "base.html" %}
 {% load voting_behaviour_extras %}
+{% block scripts %}
+ <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+
+
+        var chart_data = {
+            labels: {{ genre_labels|safe }},
+            datasets: [{
+                label: 'Ja',
+                data: {{ genre_options_count.0|safe }},
+                backgroundColor: 'rgba(0,153,0,1)',
+                hoverBackgroundColor: "rgba(0,153,0,0.5)"
+                 },
+                {
+                label: 'Nein',
+                data: {{ genre_options_count.1|safe }},
+                backgroundColor: "rgba(255,0,0,1)",
+                hoverBackgroundColor: "rgba(255,0,0,0.5)"
+                },
+                {
+                label: 'Nicht abgegeben',
+                data: {{ genre_options_count.2|safe }},
+                backgroundColor: 'rgba(102,51,51,1)',
+                hoverBackgroundColor: "rgba(102,51,51,0.5)"
+                 },
+                {
+                label: 'Enthalten',
+                data: {{ genre_options_count.3|safe }},
+                backgroundColor: 'rgba(68,68,68,1)',
+                hoverBackgroundColor: "rgba(68,68,68,0.5)"
+                 }]
+            };
+        var ctx = $('#chart');
+        var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'bar',
+        data: chart_data,
+            options: {
+                legend: {
+      display: true,
+      position: 'bottom',
+      labels: {
+        fontColor: "#000080",
+      }
+    },
+
+                title:{
+                    display: true,
+                    text: "There have been {{ voting_count }} votings from {{ start_date }} to {{ end_date }}."
+                },
+                scales: {
+                    xAxes: [{stacked: true}],
+                    yAxes: [{
+                        stacked: true,
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+
+
+    });
+    </script>
+{% endblock %}
 {% block title %} Abstimmungen für {{ politician.pre_name }} {{ politician.name }} {% endblock %}
 
 {% block request_path %}{{ request.path }}{% endblock %}
 
 {% block content %}
     <h2>Abstimmungen von {{ start_date }} bis {{ end_date }}</h2>
-    <h2> Person: {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }})</h2>
-    {{ objects }}
-    {% include "dashboard/voting_table.html" with votings=votings%}
+    {% if voting_count == 0 %}
+        <h3 style="color: red;"> Keine Abstimmungen für {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }})in der gewählten Zeitspanne</h3>
+        Die letzte Abstimmung an der {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }}) teilgenommen hat fand am {{ last_voting.date }} statt.
+    {% else %}
+        <h3>{{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }})</h3>
+        <div class="chart-container" style="width: 800px; margin:auto">
+            <canvas id="chart"></canvas>
+        </div>
+        {% include "dashboard/voting_table.html" with votings=votings individual_votes=individual_votes%}
+    {% endif %}
 {% endblock %}

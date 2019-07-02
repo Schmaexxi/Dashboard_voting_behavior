@@ -1,7 +1,8 @@
+{% load voting_behaviour_extras %}
 <table class="table">
     <thead>
     <tr>
-        {% for vote in votings %}
+        {% for voting in votings %}
             {% if forloop.first %}
                     <th>ID</th>
                     <th>Datum</th>
@@ -14,22 +15,42 @@
     </tr>
     </thead>
     <tbody>
-        {% for vote in votings %}
-        <tr>
-            <td>{% if vote.voting_id %}<button type="submit" class="btn btn-primary" form="datetime_picker_form" formaction="{% url 'detail' vote.voting_id %}">{{ vote.voting_id }}</button>{% else %} - {% endif %}</td>
-            <td>{{ vote.date }}</td>
-            <td>{{ vote.description }}</td>
-            <td>{{ vote.topic }}</td>
-            <td>{% if vote.genre %}<button type="submit" class="btn btn-primary" form="datetime_picker_form" formaction="{% url 'genre' vote.genre %}">{{ vote.genre }}</button>{% else %} - {% endif %}</td>
-            <td>{% if vote.votes %}<table class="table"><thead><tr>
-                {% for key in vote.votes.keys %}
-                    <th>{{ key }}</th>
-                {% endfor %}</tr></thead><tbody><tr>
-                {% for val in vote.votes.values %}
-                    <td>{{ val }}</td>
-                {% endfor %}</tr></tbody></table>
-        {% else %} - {% endif %}</td>
-        </tr>
-        {% endfor %}
+        {% if individual_votes %}
+            {% for voting, vote in votings|zip:individual_votes %}
+            <tr{% if vote == 'Ja' %} style="background-color: #8fd19e"{% elif vote == 'Nein' %} style="background-color: #c82333"{% elif vote == 'Enthalten' %} style="background-color: #454d55"{% elif vote == 'Nicht abgegeben' %} style="background-color: #533f03"{% endif %}>
+                <td>{% if voting.voting_id %}<button type="submit" class="btn btn-primary" form="datetime_picker_form" formaction="{% url 'detail' voting.voting_id %}">{{ voting.voting_id }}</button>{% else %} - {% endif %}</td>
+                <td>{{ voting.date }}</td>
+                <td>{{ voting.description }}</td>
+                <td>{{ voting.topic }}</td>
+                <td>{% if voting.genre %}<button type="submit" class="btn btn-primary" form="datetime_picker_form" formaction="{% url 'genre' voting.genre %}">{{ voting.genre }}</button>{% else %} - {% endif %}</td>
+                <td>{% if voting.votes %}<table class="table"><thead><tr>
+                    {% for key in voting.votes.keys %}
+                        <th>{{ key }}</th>
+                    {% endfor %}</tr></thead><tbody><tr>
+                    {% for val in voting.votes.values %}
+                        <td>{{ val }}</td>
+                    {% endfor %}</tr></tbody></table>
+            {% else %} - {% endif %}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            {% for voting in votings %}
+            <tr>
+                <td>{% if voting.voting_id %}<button type="submit" class="btn btn-primary" form="datetime_picker_form" formaction="{% url 'detail' voting.voting_id %}">{{ voting.voting_id }}</button>{% else %} - {% endif %}</td>
+                <td>{{ voting.date }}</td>
+                <td>{{ voting.description }}</td>
+                <td>{{ voting.topic }}</td>
+                <td>{% if voting.genre %}<button type="submit" class="btn btn-primary" form="datetime_picker_form" formaction="{% url 'genre' voting.genre %}">{{ voting.genre }}</button>{% else %} - {% endif %}</td>
+                <td>{% if voting.votes %}<table class="table"><thead><tr>
+                    {% for key in voting.votes.keys %}
+                        <th>{{ key }}</th>
+                    {% endfor %}</tr></thead><tbody><tr>
+                    {% for val in voting.votes.values %}
+                        <td>{{ val }}</td>
+                    {% endfor %}</tr></tbody></table>
+            {% else %} - {% endif %}</td>
+            </tr>
+            {% endfor %}
+        {% endif %}
     </tbody>
     </table>
