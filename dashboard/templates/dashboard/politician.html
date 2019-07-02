@@ -6,31 +6,40 @@
     $(document).ready(function(){
 
 
+
         var chart_data = {
             labels: {{ genre_labels|safe }},
             datasets: [{
                 label: 'Ja',
                 data: {{ genre_options_count.0|safe }},
-                backgroundColor: 'rgba(0,153,0,1)',
-                hoverBackgroundColor: "rgba(0,153,0,0.5)"
-                 },
+                backgroundColor: 'rgba(150, 247, 134, 0.2)',
+                hoverBackgroundColor: "rgba(150, 247, 134, 0.8)",
+                borderColor: 'rgba(150, 247, 134, 1)',
+                borderWidth:1
+                },
                 {
                 label: 'Nein',
                 data: {{ genre_options_count.1|safe }},
-                backgroundColor: "rgba(255,0,0,1)",
-                hoverBackgroundColor: "rgba(255,0,0,0.5)"
+                backgroundColor: "rgba(255, 99, 132, 0.2)",
+                hoverBackgroundColor: "rgba(255, 99, 132, 0.8)",
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth:1
+                },
+                {
+                label: 'Enthalten',
+                data: {{ genre_options_count.3|safe }},
+                backgroundColor: 'rgba(240, 236, 129, 0.4)',
+                hoverBackgroundColor: "rgba(240, 236, 129, 0.8)",
+                borderColor: 'rgba(240, 236, 129, 1)',
+                borderWidth:1
                 },
                 {
                 label: 'Nicht abgegeben',
                 data: {{ genre_options_count.2|safe }},
-                backgroundColor: 'rgba(102,51,51,1)',
-                hoverBackgroundColor: "rgba(102,51,51,0.5)"
-                 },
-                {
-                label: 'Enthalten',
-                data: {{ genre_options_count.3|safe }},
-                backgroundColor: 'rgba(68,68,68,1)',
-                hoverBackgroundColor: "rgba(68,68,68,0.5)"
+                backgroundColor: 'rgba(112, 174, 255, 0.2)',
+                hoverBackgroundColor: "rgba(112, 174, 255, 0.8)",
+                borderColor: 'rgba(112, 174, 255, 1)',
+                borderWidth:1
                  }]
             };
         var ctx = $('#chart');
@@ -49,7 +58,7 @@
 
                 title:{
                     display: true,
-                    text: "There have been {{ voting_count }} votings from {{ start_date }} to {{ end_date }}."
+                    text: "Von {{ start_date }} bis {{ end_date }} gab es {{ voting_count }} Abstimmungen."
                 },
                 scales: {
                     xAxes: [{stacked: true}],
@@ -72,15 +81,17 @@
 {% block request_path %}{{ request.path }}{% endblock %}
 
 {% block content %}
-    <h2>Abstimmungen von {{ start_date }} bis {{ end_date }}</h2>
-    {% if voting_count == 0 %}
-        <h3 style="color: red;"> Keine Abstimmungen für {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }})in der gewählten Zeitspanne</h3>
-        Die letzte Abstimmung an der {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }}) teilgenommen hat fand am {{ last_voting.date }} statt.
-    {% else %}
-        <h3>{{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }})</h3>
-        <div class="chart-container" style="width: 800px; margin:auto">
-            <canvas id="chart"></canvas>
-        </div>
-        {% include "dashboard/voting_table.html" with votings=votings individual_votes=individual_votes%}
-    {% endif %}
+    <div align="center">
+        <h2>Abstimmungen von {{ start_date }} bis {{ end_date }}</h2>
+        {% if voting_count == 0 %}
+            <h3 style="color: red; margin-top: 150px;"> Keine Abstimmungen für {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }})in der gewählten Zeitspanne</h3>
+            Die letzte Abstimmung an der {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }}) teilgenommen hat fand am {{ last_voting.date }} statt.
+        {% else %}
+            <h3>{{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }})</h3>
+            <div class="chart-container" style="width: 1000px; margin:auto">
+                <canvas id="chart"></canvas>
+            </div>
+            {% include "dashboard/voting_table.html" with votings=votings individual_votes=individual_votes%}
+        {% endif %}
+    </div>
 {% endblock %}

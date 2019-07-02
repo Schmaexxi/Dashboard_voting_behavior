@@ -62,7 +62,7 @@
         },
                 title:{
                     display: true,
-                    text: "There have been {{ number_of_votings }} votings from {{ start_date }} to {{ end_date }}."
+                    text: "Von {{ start_date }} bis {{ end_date }} gab es {{ voting_count }} Abstimmungen."
                 },
                 scales: {
                     yAxes: [{
@@ -84,16 +84,16 @@
 {% block request_path %}{{ request.path }}{% endblock %}
 
 {% block content %}
-    <div class="container" align="center">
-    <h1>Dashboard for Voting Behavior</h1>
+    <div style="width: 100%;" align="center">
+    <h1>Dashboard - Bundestagsabstimmungen</h1>
     <div>
 
-        <div class="chart-container" style="width: 500px; margin: auto;">
+        <div class="chart-container" style="width: 1000px; margin: auto;">
             <canvas id="chart"></canvas>
         </div>
     </div>
     <div style="clear: both;"></div>
-    <h3>Individual parties and respective votes</h3>
+    <h3>Individuelle Parteien und deren Stimmen</h3>
     <table class="table">
     <thead>
     <tr>

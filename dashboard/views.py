@@ -100,8 +100,8 @@ def detail(request, voting_id):
 
     specific_voting = Voting.objects.filter(voting_id=voting_id)[0]
     # get politicians related to this specific voting
-    pol_objects = Voting.objects.get(voting_id=voting_id).politicians.all()
-    pol_objects.order_by('politician_id')
+    pol_objects = Voting.objects.get(voting_id=voting_id).politicians.all().order_by('individualvoting__politician_id')
+    # pol_objects.order_by('politician_id')
     # get respective politician's vote - order as previous query!
     pol_votes = IndividualVoting.objects.filter(voting_id=voting_id).order_by('politician_id').values_list('vote',
                                                                                                            flat=True)
@@ -110,8 +110,6 @@ def detail(request, voting_id):
     vote_labels = [key for key in specific_voting.votes.keys()]
     votes = [int(n) for n in specific_voting.votes.values()]
     specific_voting = Voting.objects.filter(voting_id=voting_id)[0]
-    end_date = datetime.date(2019, 3, 31)
-    start_date = datetime.date(2017, 1, 1)
 
     return render(request, 'dashboard/detail.html', {'all_factions': factions,
                                                      'politicians': politicians,
@@ -214,7 +212,7 @@ def politician(request, politician_id):
     if len(last_voting) > 0:
         last_voting = last_voting[0]
 
-    votings = Voting.objects.filter(politicians__id=politician_id, date__range=(start_date, end_date))
+    votings = Voting.objects.filter(politicians__id=politician_id, date__range=(start_date, end_date)).order_by('-date')
 
     individual_votes = IndividualVoting.objects.filter(politician__id=politician_id,
                                                        voting_id__in=votings.values_list('voting_id',
