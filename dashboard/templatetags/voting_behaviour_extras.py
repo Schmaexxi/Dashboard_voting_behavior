@@ -1,4 +1,5 @@
 from django import template
+import datetime
 
 register = template.Library()
 
@@ -11,3 +12,8 @@ def dict_access(h, key):
 @register.filter(name='zip')
 def zip_lists(a, b):
     return zip(a, b)
+
+
+@register.filter
+def date_difference(date):
+    return (datetime.date.today() - date).days

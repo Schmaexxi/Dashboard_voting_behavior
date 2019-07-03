@@ -17,9 +17,10 @@ def index(request):
 
     # datetime format must be'%d-%m-%Y'
     start_date = date_form.fields['start_date'].initial
-    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
     end_date = date_form.fields['end_date'].initial
-    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y').date()
+    print(start_date, end_date)
 
     if request.method == "POST":
         date_form = DateForm(request.POST)
@@ -63,6 +64,8 @@ def index(request):
     genre_counts = [value for value in genres.values()]
     genre_labels = [key for key in genres.keys()]
 
+    last_ten_votings = Voting.objects.all().order_by('-date')[:10]
+
     return render(request, 'dashboard/index.html', {'number_of_votings': votings_count,
                                                     'genre_labels': genre_labels,
                                                     'genre_counts': genre_counts,
@@ -70,7 +73,8 @@ def index(request):
                                                     'total_votes': total_votes,
                                                     'start_date': start_date,
                                                     'end_date': end_date,
-                                                    'date_form': date_form})
+                                                    'date_form': date_form,
+                                                    'last_ten_votings': last_ten_votings})
 
 
 def list(request):
@@ -78,9 +82,9 @@ def list(request):
 
     # datetime format must be'%d-%m-%Y'
     start_date = date_form.fields['start_date'].initial
-    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
     end_date = date_form.fields['end_date'].initial
-    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y').date()
 
     if request.method == "POST":
         date_form = DateForm(request.POST)
@@ -125,9 +129,9 @@ def genre_votes(request, name):
 
     # datetime format must be'%d-%m-%Y'
     start_date = date_form.fields['start_date'].initial
-    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
     end_date = date_form.fields['end_date'].initial
-    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y').date()
 
     if request.method == "POST":
         date_form = DateForm(request.POST)
@@ -158,9 +162,9 @@ def faction_votes(request, name):
 
     # datetime format must be'%d-%m-%Y'
     start_date = date_form.fields['start_date'].initial
-    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
     end_date = date_form.fields['end_date'].initial
-    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y').date()
 
     if request.method == "POST":
         date_form = DateForm(request.POST)
@@ -189,9 +193,9 @@ def politician(request, politician_id):
 
     # datetime format must be'%d-%m-%Y'
     start_date = date_form.fields['start_date'].initial
-    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
     end_date = date_form.fields['end_date'].initial
-    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y').date()
 
     if request.method == "POST":
         date_form = DateForm(request.POST)

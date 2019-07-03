@@ -1,3 +1,4 @@
+"""
 import psycopg2
 import json
 import os
@@ -105,3 +106,4 @@ if __name__ == '__main__':
 
     #insert_votings(conn, db)
     insert_relatinoal_votings(conn, db)
+"""
