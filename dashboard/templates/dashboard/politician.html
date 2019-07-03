@@ -82,11 +82,11 @@
 
 {% block content %}
     <div align="center">
-        <h2>Abstimmungen von {{ start_date }} bis {{ end_date }}</h2>
         {% if voting_count == 0 %}
-            <h3 style="color: red; margin-top: 150px;"> Keine Abstimmungen für {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }})in der gewählten Zeitspanne</h3>
+            <h3 style="color: red; margin-top: 150px;"> Keine Abstimmungen für {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }}) zwischen dem {{ start_date }} und dem {{ end_date }}.</h3>
             Die letzte Abstimmung an der {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }}) teilgenommen hat fand am {{ last_voting.date }} statt.
         {% else %}
+        <h2>Abstimmungen von {{ start_date }} bis {{ end_date }}</h2>
             <h3>{{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }})</h3>
             <div class="chart-container" style="width: 1000px; margin:auto">
                 <canvas id="chart"></canvas>

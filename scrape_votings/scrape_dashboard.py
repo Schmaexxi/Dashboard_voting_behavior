@@ -96,8 +96,8 @@ def get_votings():
             vote_total = vote_tag.h3.contents[len(vote_tag.h3.contents) - 1].strip()
             vote_total = re.sub(r"\D", "", vote_total)
 
-            votes = {"total": vote_total, "yes": vote_yes, "no": vote_no, "abstained": vote_abstained,
-                     "not_turned_in": vote_not_turned_in}
+            votes = {"Summe": vote_total, "Ja": vote_yes, "Nein": vote_no, "Enthalten": vote_abstained,
+                     "Nicht abgegeben": vote_not_turned_in}
 
             meta_data_tag = i.find("div", attrs={"class": "bt-teaser-text"})
             vote_date = meta_data_tag.find("span", attrs={"class": "bt-date"}).text

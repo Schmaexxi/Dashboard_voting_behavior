@@ -110,16 +110,43 @@ def detail(request, voting_id):
     pol_votes = IndividualVoting.objects.filter(voting_id=voting_id).order_by('politician_id').values_list('vote',
                                                                                                            flat=True)
     politicians = tuple(zip(pol_objects, pol_votes))
-    factions = pol_objects.distinct().values_list('faction', flat=True)
+
+    factions = IndividualVoting.objects.filter(voting_id=voting_id).values_list('politician__faction',
+                                                                                flat=True).distinct()
+
+    vote_options = IndividualVoting.objects.values_list('vote', flat=True).distinct()
+    vote_options = [vote for vote in vote_options]
+    # TODO: keep order of vote_options, however get the list dynamically
+    vote_options = ['Ja', 'Nein', 'Enthalten', 'Nicht abgegeben']
     vote_labels = [key for key in specific_voting.votes.keys()]
     votes = [int(n) for n in specific_voting.votes.values()]
     specific_voting = Voting.objects.filter(voting_id=voting_id)[0]
+
+    cells = IndividualVoting.objects.filter(voting_id=voting_id).values('politician__faction',
+                                                                        'vote').annotate(Count('vote'))
+
+    objects = {}
+    for cell in cells:
+        objects.setdefault(cell['politician__faction'], {})[cell['vote']] = cell['vote__count']
+
+    faction_labels = [key for key in objects.keys()]
+
+    faction_votes_count = [[0 for _ in faction_labels] for _ in vote_options]
+    for idx, faction in enumerate(faction_labels):
+        for vote in vote_options:
+            if objects.get(faction).get(vote):
+                # print(f"set {faction}'s vote '{vote}' to {objects[faction][vote]}")
+                faction_votes_count[vote_options.index(vote)][idx] = objects[faction][vote]
+
+    # print(faction_votes_count)
 
     return render(request, 'dashboard/detail.html', {'all_factions': factions,
                                                      'politicians': politicians,
                                                      "specific_voting": specific_voting,
                                                      "votes": votes,
-                                                     "vote_labels": vote_labels})
+                                                     "vote_labels": vote_labels,
+                                                     "faction_votes_count": faction_votes_count,
+                                                     "faction_labels": faction_labels})
 
 
 @require_http_methods(["GET", "POST"])
@@ -141,6 +168,8 @@ def genre_votes(request, name):
             print(start_date, end_date)
         else:
             print("data invalid")
+
+    votings = Voting.objects.filter(date__range=(start_date, end_date), genre=name)
 
     cells = IndividualVoting.objects.filter(voting__date__range=(start_date, end_date),
                                             voting__genre=name).values('politician__faction',

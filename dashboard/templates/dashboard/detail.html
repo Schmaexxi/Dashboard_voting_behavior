@@ -53,6 +53,70 @@
                 }
             }
         });
+        var chart_data_faction_votes = {
+            labels: {{ faction_labels|safe }},
+            datasets: [{
+                label: 'Ja',
+                data: {{ faction_votes_count.0|safe }},
+                backgroundColor: 'rgba(150, 247, 134, 0.2)',
+                hoverBackgroundColor: "rgba(150, 247, 134, 0.8)",
+                borderColor: 'rgba(150, 247, 134, 1)',
+                borderWidth:1
+                },
+                {
+                label: 'Nein',
+                data: {{ faction_votes_count.1|safe }},
+                backgroundColor: "rgba(255, 99, 132, 0.2)",
+                hoverBackgroundColor: "rgba(255, 99, 132, 0.8)",
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth:1
+                },
+                {
+                label: 'Enthalten',
+                data: {{ faction_votes_count.2|safe }},
+                backgroundColor: 'rgba(240, 236, 129, 0.4)',
+                hoverBackgroundColor: "rgba(240, 236, 129, 0.8)",
+                borderColor: 'rgba(240, 236, 129, 1)',
+                borderWidth:1
+                },
+                {
+                label: 'Nicht abgegeben',
+                data: {{ faction_votes_count.3|safe }},
+                backgroundColor: 'rgba(112, 174, 255, 0.2)',
+                hoverBackgroundColor: "rgba(112, 174, 255, 0.8)",
+                borderColor: 'rgba(112, 174, 255, 1)',
+                borderWidth:1
+                 }]
+            };
+                var ctx1 = $('#chart2');
+        var chart1 = new Chart(ctx1, {
+        // The type of chart we want to create
+        type: 'bar',
+        data: chart_data_faction_votes,
+            options: {
+                legend: {
+                      display: true,
+                      position: 'bottom',
+                      labels: {
+                        fontColor: "#000080",
+                      }
+                    },
+
+                title:{
+                    display: true,
+                    text: "Stimmen nach Parteien."
+                },
+                scales: {
+                    xAxes: [{stacked: true}],
+                    yAxes: [{
+                        stacked: true,
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
 
         $('#chart_select').on('change', function() {
     chart.destroy();
@@ -72,15 +136,9 @@
     <h1>{{ specific_voting.topic }}</h1>
     <p>{{ specific_voting.description }}</p>
     <p>{{ specific_voting.date }}</p>
-    <div class="chart-container" style="width: 800px; margin:auto">
+    <div class="chart-container" style="width: 800px; margin:auto;float: left">
         <canvas id="chart"></canvas>
-    <select id="faction_select" class="browser-default custom-select" style="width: 50%;float: left;">
-        <option value="all">Alle Parteien anzeigen</option>
-        {% for faction in all_factions %}
-            <option value="{{ faction|cut:" "|cut:"/" }}">{{ faction }}</option>
-        {% endfor %}
-    </select>
-    <select id="chart_select" class="browser-default custom-select" style="width: 50%;float: left;">
+    <select id="chart_select" class="browser-default custom-select">
         <option value="doughnut">Doughnut</option>
         <option value="line">Line</option>
         <option value="bar">Bar</option>
@@ -90,8 +148,17 @@
         <option value="bubble">Bubble</option>
         <option value="scatter">Scatter</option>
     </select>
+        <select id="faction_select" class="browser-default custom-select" style="width: 50%;float: left;">
+        <option value="all">Alle Parteien anzeigen</option>
+        {% for faction in all_factions %}
+            <option value="{{ faction|cut:" "|cut:"/" }}">{{ faction }}</option>
+        {% endfor %}
+    </select>
     </div>
 
+<div style="float: right;width: 800px;">
+<canvas id="chart2"></canvas>
+</div>
         <table id="faction_table" class="table">
             <thead>
                 <tr>
