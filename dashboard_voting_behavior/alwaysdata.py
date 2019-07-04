@@ -52,5 +52,5 @@ LOGGING = {
 }
 
 
-STATIC_ROOT = 'staticfiles'
+STATIC_ROOT = 'static'
 
