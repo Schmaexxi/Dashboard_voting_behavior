@@ -1,12 +1,92 @@
 {% extends "base.html" %}
 {% load voting_behaviour_extras %}
+{% block scripts %}
+ <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+
+
+
+        var chart_data = {
+            labels: {{ genre_labels|safe }},
+            datasets: [{
+                label: 'Ja',
+                data: {{ genre_votes_count.0|safe }},
+                backgroundColor: 'rgba(150, 247, 134, 0.2)',
+                hoverBackgroundColor: "rgba(150, 247, 134, 0.8)",
+                borderColor: 'rgba(150, 247, 134, 1)',
+                borderWidth:1
+                },
+                {
+                label: 'Nein',
+                data: {{ genre_votes_count.1|safe }},
+                backgroundColor: "rgba(255, 99, 132, 0.2)",
+                hoverBackgroundColor: "rgba(255, 99, 132, 0.8)",
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth:1
+                },
+                {
+                label: 'Enthalten',
+                data: {{ genre_votes_count.2|safe }},
+                backgroundColor: 'rgba(240, 236, 129, 0.4)',
+                hoverBackgroundColor: "rgba(240, 236, 129, 0.8)",
+                borderColor: 'rgba(254, 236, 129, 1)',
+                borderWidth:1
+                },
+                {
+                label: 'Nicht abgegeben',
+                data: {{ genre_votes_count.3|safe }},
+                backgroundColor: 'rgba(112, 174, 255, 0.2)',
+                hoverBackgroundColor: "rgba(112, 174, 255, 0.8)",
+                borderColor: 'rgba(112, 174, 255, 1)',
+                borderWidth:1
+                 }]
+            };
+        var ctx = $('#chart');
+        var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'bar',
+        data: chart_data,
+            options: {
+                legend: {
+      display: true,
+      position: 'bottom',
+      labels: {
+        fontColor: "#000080",
+      }
+    },
+
+                title:{
+                    display: true,
+                    text: "Stimmen der Abgeordneten der {{ name }}  vom {{ start_date }} bis zum {{ end_date }}."
+                },
+                scales: {
+                    xAxes: [{stacked: true}],
+                    yAxes: [{
+                        stacked: true,
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+
+
+    });
+    </script>
+{% endblock %}
 {% block title %} Votes for {{ genre }} {% endblock %}
 
 {% block request_path %}{{ request.path }}{% endblock %}
 
 {% block content %}
-    <h2>Votings from {{ start_date }} to {{ end_date }}</h2>
+    <h2>{{ votings|length }} votings from {{ start_date }} to {{ end_date }}</h2>
     <h2> Faction: {{ name }}</h2>
+            <div class="chart-container" style="width: 1000px; margin:auto">
+                <canvas id="chart"></canvas>
+            </div>
+
 <table class="table">
 <thead>
 <tr>
@@ -27,4 +107,5 @@
     {% endfor %}
 </tbody>
 </table>
+    {% include "dashboard/voting_table.html" with votings=votings%}
 {% endblock %}

@@ -30,7 +30,7 @@
                 data: {{ genre_options_count.3|safe }},
                 backgroundColor: 'rgba(240, 236, 129, 0.4)',
                 hoverBackgroundColor: "rgba(240, 236, 129, 0.8)",
-                borderColor: 'rgba(240, 236, 129, 1)',
+                borderColor: 'rgba(254, 236, 129, 1)',
                 borderWidth:1
                 },
                 {
@@ -81,6 +81,7 @@
 {% block request_path %}{{ request.path }}{% endblock %}
 
 {% block content %}
+    {{ vote_stats }}
     <div align="center">
         {% if voting_count == 0 %}
             <h3 style="color: red; margin-top: 150px;"> Keine Abstimmungen für {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }}) zwischen dem {{ start_date }} und dem {{ end_date }}.</h3>
