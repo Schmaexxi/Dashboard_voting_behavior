@@ -102,6 +102,23 @@ def list(request):
 
 def detail(request, voting_id):
 
+    date_form = DateForm()
+
+    # datetime format must be'%d-%m-%Y'
+    start_date = date_form.fields['start_date'].initial
+    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
+    end_date = date_form.fields['end_date'].initial
+    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y').date()
+
+    if request.method == "POST":
+        date_form = DateForm(request.POST)
+        if date_form.is_valid():
+            start_date = date_form.cleaned_data['start_date']
+            end_date = date_form.cleaned_data['end_date']
+            print(start_date, end_date)
+        else:
+            print("data invalid")
+
     specific_voting = Voting.objects.filter(voting_id=voting_id)[0]
     # get politicians related to this specific voting
     pol_objects = Voting.objects.get(voting_id=voting_id).politicians.all().order_by('individualvoting__politician_id')
@@ -261,10 +278,12 @@ def politician(request, politician_id):
                                                                       end_date)).values('voting__genre',
                                                                                         'vote').annotate(Count('vote'))
 
-    vote_stats = IndividualVoting.objects.filter(politician__id=politician_id,
+    vote_stats_query = IndividualVoting.objects.filter(politician__id=politician_id,
                                                  voting__date__range=(start_date,
                                                                 end_date)).values_list('vote').annotate(Count('vote'))
 
+    # TODO: reihenfolge und existenz der voteoptionen sicherstellen
+    vote_stats = [[option[0] for option in vote_stats_query], [count[1] for count in vote_stats_query]]
     objects = {}
     for cell in vote_stats_genre:
         objects.setdefault(cell['voting__genre'], {})[cell['vote']] = cell['vote__count']

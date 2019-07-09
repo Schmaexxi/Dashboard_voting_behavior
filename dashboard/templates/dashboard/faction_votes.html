@@ -81,8 +81,9 @@
 {% block request_path %}{{ request.path }}{% endblock %}
 
 {% block content %}
-    <h2>{{ votings|length }} votings from {{ start_date }} to {{ end_date }}</h2>
-    <h2> Faction: {{ name }}</h2>
+        <div align="center">
+        <h2>{{ votings|length }} Abstimmungen von {{ name }} vom {{ start_date }} bis zum {{ end_date }}.</h2>
+    </div>
             <div class="chart-container" style="width: 1000px; margin:auto">
                 <canvas id="chart"></canvas>
             </div>
@@ -99,7 +100,7 @@
 <tbody>
     {% for key, votes in objects.items %}
         <tr>
-        <th>{{ key }}</th>
+        <th><button type="submit" form="datetime_picker_form" formaction="{% url 'genre' name=key %}" class="btn btn-primary">{{ key }}</button></th>
         {% for vote in vote_options %}
             <td>{{ votes|dict_access:vote }}</td>
         {% endfor %}

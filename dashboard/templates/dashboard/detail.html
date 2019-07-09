@@ -171,10 +171,10 @@
 {% endblock %}
 {% block request_path %}{{ request.path }}{% endblock %}
 {% block content %}
-    <h2>{{ specific_voting.genre }}</h2>
     <h1>{{ specific_voting.topic }}</h1>
+    <h2 style="display: inline;">{{ specific_voting.genre }}</h2> <p style="display: inline; margin-left: 20px;">{{ specific_voting.date }}</p>
     <p>{{ specific_voting.description }}</p>
-    <p>{{ specific_voting.date }}</p>
+
     <div class="chart-container" style="width: 800px; margin:auto;float: left">
         <canvas id="chart"></canvas>
     <select id="chart_select" class="browser-default custom-select">

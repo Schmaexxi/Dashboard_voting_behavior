@@ -5,6 +5,5 @@
 {% block request_path %}{{ request.path }}{% endblock %}
 
 {% block content %}
-    <h2>{{ all_votings|length }} votings from {{ start_date }} to {{ end_date }}</h2>
     {% include "dashboard/voting_table.html" with votings=all_votings%}
 {% endblock %}

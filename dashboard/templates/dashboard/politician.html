@@ -49,29 +49,81 @@
         data: chart_data,
             options: {
                 legend: {
-      display: true,
-      position: 'bottom',
-      labels: {
-        fontColor: "#000080",
-      }
-    },
+                  display: true,
+                  position: 'bottom',
+                  labels: {
+                    fontColor: "#000080",
+                  }
+                },
 
                 title:{
                     display: true,
                     text: "Vom {{ start_date }} bis zum {{ end_date }} war {{ politician.pre_name }} {{ politician.name }} an {{ voting_count }} Abstimmungen beteiligt."
                 },
-                scales: {
-                    xAxes: [{stacked: true}],
-                    yAxes: [{
-                        stacked: true,
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
+                    scales: {
+                        xAxes: [{stacked: true}],
+                        yAxes: [{
+                            stacked: true,
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
                 }
-            }
         });
 
+    //TODO: färbung der balken nicht konsequent, da das übergebene array nicht zwangsläufig vier elemente in reihenfolge entählt
+        var chart_data2 = {
+            labels: {{ vote_stats.0|safe }},
+            datasets: [{
+                label: 'Summe der Abstimmungen',
+                data: {{ vote_stats.1|safe }},
+                backgroundColor: [
+                    'rgba(150, 247, 134, 0.2)',
+                    "rgba(255, 99, 132, 0.2)",
+                    'rgba(240, 236, 129, 0.4)',
+                    'rgba(112, 174, 255, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(150, 247, 134, 1)',
+                    "rgba(255, 99, 132, 1)",
+                    'rgba(240, 236, 129, 1)',
+                    'rgba(112, 174, 255, 1)'
+                ],
+                hoverBackgroundColor: [
+                  "rgba(150, 247, 134, 0.8)",
+                    "rgba(255, 99, 132, 0.8)",
+                    'rgba(240, 236, 129, 0.8)',
+                    'rgba(112, 174, 255, 0.8)',
+                ],
+                borderWidth: 1
+            }]
+            };
+
+        var ctx1 = $('#chart2');
+        var chart2 = new Chart(ctx1, {
+    type: 'horizontalBar',
+    data: chart_data2,
+    options: {
+        legend: {
+          display: false
+        },
+        title:{
+            display: true,
+            text: "Summe der Abstimmungsoptionen."
+            },
+        scales: {
+            xAxes: [{
+                ticks: {
+                    min: 0 // Edit the value according to what you need
+                }
+            }],
+            yAxes: [{
+                stacked: true
+            }]
+        }
+    }
+});
 
     });
     </script>
@@ -81,15 +133,17 @@
 {% block request_path %}{{ request.path }}{% endblock %}
 
 {% block content %}
-    {{ vote_stats }}
     <div align="center">
         {% if voting_count == 0 %}
             <h3 style="color: red; margin-top: 150px;"> Keine Abstimmungen für {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }}) zwischen dem {{ start_date }} und dem {{ end_date }}.</h3>
-            Die letzte Abstimmung an der {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }}) teilgenommen hat fand am {{ last_voting.date }} statt.
+            Die letzte Abstimmung, an der {{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }}) teilgenommen hat, fand am {{ last_voting.date }} statt.
         {% else %}
         <h2>Abstimmungen von {{ start_date }} bis {{ end_date }}</h2>
             <h3>{{ politician.pre_name }} {{ politician.name }} ({{ politician.faction }})</h3>
-            <div class="chart-container" style="width: 1000px; margin:auto">
+            <div class="chart-container" style="width: 300px; margin:auto; float: left;">
+                <canvas id="chart2"></canvas>
+            </div>
+            <div class="chart-container" style="width: 800px; margin:auto">
                 <canvas id="chart"></canvas>
             </div>
             {% include "dashboard/voting_table.html" with votings=votings individual_votes=individual_votes%}

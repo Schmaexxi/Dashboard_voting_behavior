@@ -149,10 +149,11 @@
     </thead>
     <tbody>
         {% for key, val in faction_votes.items %}
-            <tr><td><button type="submit" form="datetime_picker_form" formaction="{% url 'faction' name=key %}" class="btn btn-primary">{{ key }}</button></td>
-            {% for vote, count in val.items %}
-                <td>{{ count }}</td>
-            {% endfor %}
+            <tr>
+                <td><button type="submit" form="datetime_picker_form" formaction="{% url 'faction' name=key %}" class="btn btn-primary">{{ key }}</button></td>
+                {% for vote, count in val.items %}
+                    <td>{{ count }}</td>
+                {% endfor %}
             </tr>
         {% endfor %}
             <tr>
