@@ -9,13 +9,12 @@ from django.views.decorators.http import require_http_methods
 from dashboard.forms import DateForm
 
 # TODO: keep order of vote_options, however get the list dynamically
-vote_options = ['Ja', 'Nein', 'Enthalten', 'Nicht abgegeben']
 
 
 # TODO: date_form aus den views auslagern
 @require_http_methods(["GET", "POST"])
 def index(request):
-
+    vote_options = ['Ja', 'Nein', 'Enthalten', 'Nicht abgegeben']
     date_form = DateForm()
 
     # datetime format must be'%d-%m-%Y'
@@ -78,6 +77,7 @@ def index(request):
                                                     'last_ten_votings': last_ten_votings})
 
 def list(request):
+    vote_options = ['Ja', 'Nein', 'Enthalten', 'Nicht abgegeben']
     date_form = DateForm()
 
     # datetime format must be'%d-%m-%Y'
@@ -101,7 +101,7 @@ def list(request):
 
 
 def detail(request, voting_id):
-
+    vote_options = ['Ja', 'Nein', 'Enthalten', 'Nicht abgegeben']
     date_form = DateForm()
 
     # datetime format must be'%d-%m-%Y'
@@ -130,10 +130,11 @@ def detail(request, voting_id):
 
     factions = IndividualVoting.objects.filter(voting_id=voting_id).values_list('politician__faction',
                                                                                 flat=True).distinct()
-    vote_labels = [key for key in specific_voting.votes.keys()]
-    votes = [int(v) if k != 'total' else 0 for k, v in specific_voting.votes.items()]
-    specific_voting = Voting.objects.filter(voting_id=voting_id)[0]
+    vote_labels = [key for key in specific_voting.votes.keys() if key != 'Summe']
+    votes = [int(v) for k, v in specific_voting.votes.items() if k != 'Summe']
 
+    specific_voting = Voting.objects.filter(voting_id=voting_id)[0]
+    print(vote_labels, votes)
     cells = IndividualVoting.objects.filter(voting_id=voting_id).values('politician__faction',
                                                                         'vote').annotate(Count('vote'))
 
@@ -154,7 +155,7 @@ def detail(request, voting_id):
 
 @require_http_methods(["GET", "POST"])
 def genre_votes(request, name):
-
+    vote_options = ['Ja', 'Nein', 'Enthalten', 'Nicht abgegeben']
     date_form = DateForm()
 
     # datetime format must be'%d-%m-%Y'
@@ -196,7 +197,7 @@ def genre_votes(request, name):
 
 @require_http_methods(["GET", "POST"])
 def faction_votes(request, name):
-
+    vote_options = ['Ja', 'Nein', 'Enthalten', 'Nicht abgegeben']
     date_form = DateForm()
 
     # datetime format must be'%d-%m-%Y'
@@ -221,6 +222,7 @@ def faction_votes(request, name):
                                             politician__faction=name).values('voting__genre',
                                                                              'vote').annotate(Count('vote'))
     objects = {}
+
     for cell in cells:
         objects.setdefault(cell['voting__genre'], {})[cell['vote']] = cell['vote__count']
 
@@ -238,6 +240,7 @@ def faction_votes(request, name):
 
 @require_http_methods(['GET', 'POST'])
 def politician(request, politician_id):
+    vote_options = ['Ja', 'Nein', 'Enthalten', 'Nicht abgegeben']
     date_form = DateForm()
 
     # datetime format must be'%d-%m-%Y'
@@ -283,7 +286,20 @@ def politician(request, politician_id):
                                                                 end_date)).values_list('vote').annotate(Count('vote'))
 
     # TODO: reihenfolge und existenz der voteoptionen sicherstellen
-    vote_stats = [[option[0] for option in vote_stats_query], [count[1] for count in vote_stats_query]]
+    print(vote_stats_query)
+    opt_stats = []
+    for vote_opt in vote_options:
+        found = False
+        for tuple_ in vote_stats_query:
+            if tuple_[0] == vote_opt:
+                opt_stats.append(tuple_[1])
+                found = True
+        if not found:
+            opt_stats.append(0)
+
+    #vote_stats = [[option[0] for option in vote_stats_query], [count[1] for count in vote_stats_query]]
+    vote_stats = [vote_options, opt_stats]
+
     objects = {}
     for cell in vote_stats_genre:
         objects.setdefault(cell['voting__genre'], {})[cell['vote']] = cell['vote__count']

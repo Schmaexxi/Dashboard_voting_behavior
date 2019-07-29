@@ -19,26 +19,23 @@
             datasets: [{
                 data: {{ votes|safe }},
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
                     'rgba(150, 247, 134, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
                     'rgba(240, 236, 129, 0.4)',
                     'rgba(112, 174, 255, 0.2)',
                     'rgba(255, 159, 64, 0.2)'
                 ],
                 hoverBackgroundColor: [
-                    'rgba(255, 99, 132, 0.8)',
                     'rgba(150, 247, 134, 0.8)',
-                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(255, 99, 132, 0.8)',
                     'rgba(240, 236, 129, 0.8)',
                     'rgba(112, 174, 255, 0.8)',
                     'rgba(255, 159, 64, 0.2)'
                 ],
 
                 borderColor: [
-                    'rgba(255, 99, 132, 1)',
                     'rgba(150, 247, 134, 1)',
-                    'rgba(255, 206, 86, 1)',
+                    'rgba(255, 99, 132, 1)',
                     'rgba(240, 236, 129, 1)',
                     'rgba(112, 174, 255, 1)',
                     'rgba(255, 159, 64, 1)'
@@ -179,13 +176,10 @@
         <canvas id="chart"></canvas>
     <select id="chart_select" class="browser-default custom-select">
         <option value="doughnut">Doughnut</option>
-        <option value="line">Line</option>
         <option value="bar">Bar</option>
         <option value="radar">Radar</option>
         <option value="pie">Pie</option>
         <option value="polarArea">Polar area</option>
-        <option value="bubble">Bubble</option>
-        <option value="scatter">Scatter</option>
     </select>
         <select id="faction_select" class="browser-default custom-select" style="width: 50%;float: left;">
         <option value="all">Alle Parteien anzeigen</option>
