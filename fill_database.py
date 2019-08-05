@@ -3,16 +3,14 @@ import json
 import os
 from django.db import DatabaseError
 
-# ToDo: regex for the terrible inconsistencies
-vote_types = ['Ja', 'Nein','Enthalten', 'Nicht abg.', 'Nicht abg.(Gesetzlicher Mutterschutz)']
-# lowercase items as temporary fix
-vote_types = [item.lower() for item in vote_types]
-# vote_types.index(politician.get('vote').lower()) if politician.get('vote').lower() in vote_types else 4
 
-
-# TODO: only insert from where you left off
-# relational scheme
 def insert_relational_votings(conn, database_table):
+    """
+    function for inserting voting data from a json file into a database table
+    :param conn: psycopg2 connection
+    :param database_table: name of table for 'votings'
+    :return: list of votings that had already been in the table
+    """
     curs = conn.cursor()
     curs.execute(f"Select * FROM {database_table}")
     colnames = [desc[0] for desc in curs.description]
@@ -20,21 +18,23 @@ def insert_relational_votings(conn, database_table):
 
     counter = 0
 
+    # json file with the data to be inserted
     with open(f"./scrape_votings/votings/votings.json", encoding='utf-8') as file:
         data = json.load(file)
 
     try:
         cur = conn.cursor()
 
+        # get ids of existent votings
         cur.execute(f"SELECT voting_id FROM {database_table}")
         ids = cur.fetchall()
+        ids = [x[0] for x in ids]
 
         for voting in data['votings']:
             new_voting = True
             id_ = voting['voting_id']
-            for i in ids:
-                if int(id_) in i:
-                    new_voting = False
+            if int(id_) in ids:
+                new_voting = False
             if new_voting:
                 # sort values to be in order with column names
                 keys = sorted(voting.keys())
@@ -49,17 +49,17 @@ def insert_relational_votings(conn, database_table):
                     else:
                         result.append(voting[key] if voting[key] is not None else "")
 
-                print("New voting - ID: ", id_)
-                print(result)
+                # print("New voting - ID: ", id_, result)
                 result_str = ','.join("'{0}'".format(x) for x in result)
-                print(result_str)
+                # print(result_str)
                 query_string = f"INSERT INTO {database_table} ({', '.join(colnames)}) VALUES ({result_str})"
-                print(query_string)
+                # print(query_string)
                 cur.execute(query_string)
                 conn.commit()
                 counter += 1
             else:
-                print(" Voting with ID: ", id_, " already exists. Continue.")
+                pass
+                # print(" Voting with ID: ", id_, " already exists. Continue.")
 
         print(f"inserted {counter} new votings")
     except DatabaseError:
@@ -68,22 +68,35 @@ def insert_relational_votings(conn, database_table):
     finally:
         if conn:
             conn.close()
+    return ids
 
 
 def insert_politicians_and_votings(conn, database_table_politicians,
-                                   db_individual_voting):
+                                   db_individual_voting, existent_votings=[]):
+    """
+    function to insert politicians and their votes from json files into database tables
+    :param conn: psycopg2 connection
+    :param database_table_politicians: name of table for 'politicians'
+    :param db_individual_voting: name of table for 'individual_votings'
+    :param existent_votings: list of already existing votings
+    :return: None
+    """
 
     curs = conn.cursor()
     curs.execute(f"Select * FROM {database_table_politicians}")
     colnames_politicians = [desc[0] for desc in curs.description]
-    print(colnames_politicians)
+    # print(colnames_politicians)
     query_set = curs.fetchall()
 
     dir_ = "./scrape_votings/votings/individual"
     num_votings= len([name for name in os.listdir(dir_) if os.path.isfile(os.path.join(dir_, name))])
 
     for num, filename in enumerate(os.listdir(dir_)):
-        print(f"Progress: {num/num_votings*100} %")
+        id_ = filename[:filename.find('.')]
+        if int(id_) in existent_votings:
+            # print("voting already exists. skipping")
+            continue
+        # print(f"Progress: {num/num_votings*100} %")
         with open(f"{dir_}/{filename}", encoding='utf-8') as file:
             data = json.load(file)
 
@@ -119,29 +132,32 @@ def insert_politicians_and_votings(conn, database_table_politicians,
                     # print(politician_id)
                     conn.commit()
 
-                # TODO: fix inconsistencies - see if statement in query string
                 # Insert new relation between pilitician and individual voting
                 query_string = f"INSERT INTO {db_individual_voting} (voting_id, politician_id, vote) " \
                     f"VALUES ('{current_voting_id}', '{politician_id}', '{'Nicht abgegeben' if politician.get('vote').lower().startswith('nicht abg') else politician.get('vote')}')"
                 # print(query_string)
-                curs.execute(query_string)
-                conn.commit()
+                try:
+                    curs.execute(query_string)
+                    conn.commit()
+                except Exception as e:
+                    # violates unique constraint
+                    if e.pgcode == "25P02":
+                        print(e)
+                    conn.rollback()
 
 
 if __name__ == '__main__':
     os.environ.setdefault('PGDATABASE', 'votings')
     os.environ.setdefault('PGUSER', 'dashboard_voting_behavior')
     os.environ.setdefault('PGPASSWORD', 'password')
-    
-    for key in 'PGHOST PGPORT PGDATABASE PGUSER'.split():
-        print(key, os.environ.get(key, ''))
+
     conn = psycopg2.connect("")
 
     db_voting = "dashboard_voting"
     db_politician = "dashboard_politician"
     db_individual_voting = "dashboard_individualvoting"
 
-    insert_relational_votings(conn, db_voting)
+    existent_votings = insert_relational_votings(conn, db_voting)
     if conn.closed:
         conn = psycopg2.connect("")
-    insert_politicians_and_votings(conn, db_politician, db_individual_voting)
+    insert_politicians_and_votings(conn, db_politician, db_individual_voting, existent_votings=existent_votings)

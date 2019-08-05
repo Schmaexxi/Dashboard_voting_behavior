@@ -5,7 +5,13 @@ from socket import timeout
 import logging
 from literals import path_logging_file
 
+
 def try_open(url):
+    """
+    custom exception-endowed function for opening urls
+    @params:
+        url        - Required   : page to request
+    """
     success = False
     while not success:
         try:
@@ -20,6 +26,7 @@ def try_open(url):
     return page
 
 
+# ensuring ascii encoding in json data
 def json_dump(path, data, **kwargs):
     with open(path, 'w+', encoding="utf-8") as outfile:
         dump(data, outfile, indent=4, ensure_ascii=False, **kwargs)
@@ -66,20 +73,3 @@ def setup_custom_logger(name):
     logger.addHandler(handler)
     # logger.addHandler(screen_handler)
     return logger
-
-
-if __name__ == '__main__':
-    from time import sleep
-
-    # A List of Items
-    items = list(range(0, 57))
-    l = len(items)
-
-    # Initial call to print 0% progress
-    print_progress(0, l, prefix='Progress:', suffix='Complete', bar_length=50)
-    for i, item in enumerate(items):
-        # Do stuff...
-        sleep(0.1)
-        # Update Progress Bar
-        print_progress(i + 1, l, prefix='Progress:',
-                       suffix='Complete', bar_length=50)

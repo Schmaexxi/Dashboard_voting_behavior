@@ -30,3 +30,6 @@ class IndividualVoting(models.Model):
     voting = models.ForeignKey(Voting, on_delete=models.CASCADE)
     politician = models.ForeignKey(Politician, on_delete=models.CASCADE)
     vote = models.CharField(max_length=80)
+
+    class Meta:
+        unique_together = (("politician", "voting",))

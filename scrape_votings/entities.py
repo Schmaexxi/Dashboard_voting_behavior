@@ -1,7 +1,5 @@
 from json import JSONEncoder, dumps
 
-# TODO: date as date type
-
 
 class Vote:
     def __init__(self):

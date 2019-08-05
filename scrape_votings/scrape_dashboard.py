@@ -11,6 +11,7 @@ def get_votings():
     # progress bar
     print_progress(0, 1, prefix="Article description crawled:", suffix="Complete", bar_length=50)
 
+    # automate file creation/overwrite
     file_exists = False
     if os.path.isdir(path_voting_dir):
         file_exists = os.path.isfile(path_voting_dir + "/votings.json")
@@ -23,6 +24,7 @@ def get_votings():
         with open(path_voting_dir + "/votings.json",
                   "r", encoding="utf8") as f:
             data = json.load(f)
+            # continue scraping from latest_voting
             # data structure is dependent on 'data["ids"]' to be sorted descending
             latest_voting_id = data["ids"][0]
         if not data.get("votings"):
@@ -30,16 +32,18 @@ def get_votings():
     else:
         data = {"votings": [], "ids": []}
 
+    # document new votings
     changes = []
 
-    start, limit = 0, 600
+    # set limits of of voting id range to be scraped
+    start, limit = 0, 2000
     for idx in range(start, limit, 10):
-
         offset = "&offset={}"
         page = try_open(quote_page.format(offset.format((str(idx)))))
 
         soup = BeautifulSoup(page, "html.parser")
 
+        # stop condition once the latest voting id has been scraped
         if soup.find("div", attrs={"class": "bt-slide-error"}):
             print("no more votings")
             votings_changed(changes)
@@ -55,7 +59,7 @@ def get_votings():
         print("offset(" + str(idx) + ") | #articles in current request(" + str(len(divs)) + ")")
         for i in divs:
 
-            # TODO - typechecking str vs. int
+            # get voting id
             digits = 4
             vote_id = None
             while digits > 0:
@@ -66,20 +70,21 @@ def get_votings():
                         pass
                 digits -= 1
 
-            # TODO: check if any older votings have been added by checking all past votings (maybe once a day)
-            #  - check whether older votings may even be missing in the list of scraped votings or whether it
-            #  is a continuous list
             # checks presence of voting with the highest id in the list of crawled votings
             # no insurance for older votings that may have been added after a more recent crawl
             if latest_voting_id is not None and latest_voting_id >= vote_id:
                 if len(new_vote_list) == 0:
                     print("Latest voting id: ", latest_voting_id)
                     print(vote_id)
-                    print("No new votings since last crawl")
+                    print("Votings reached that have already been crawled. Stopping.")
                     print_progress(1, 1, prefix="Article description crawled:", suffix="Complete", bar_length=50)
                     return
                 else:
-                    print("Some new votings since last crawl")
+                    print(f"continue for {vote_id}")
+                    continue
+
+
+            # scrape necessary information
 
             changes.append(vote_id)
 
@@ -88,7 +93,7 @@ def get_votings():
 
             vote_tag = i.find("div", attrs={"class": "bt-teaser-text-chart"})
 
-            vote_yes = vote_tag.ul.find("li",attrs={"class": "bt-legend-ja"}).span.text
+            vote_yes = vote_tag.ul.find("li", attrs={"class": "bt-legend-ja"}).span.text
             vote_no = vote_tag.ul.find("li", attrs={"class": "bt-legend-nein"}).span.text
             vote_abstained = vote_tag.ul.find("li", attrs={"class": "bt-legend-enthalten"}).span.text
             vote_not_turned_in = vote_tag.ul.find("li", attrs={"class": "bt-legend-na"}).span.text
@@ -108,13 +113,13 @@ def get_votings():
             else:
                 vote_genre = meta_data_tag.h3.span.text.strip()
 
-            # TODO: topic length will be cut when derived from the overview page as in this case
-            #  get it from the individual voting instead!
+            # weird multiline strings -> need to be stripped
             vote_topic = meta_data_tag.h3.contents[len(meta_data_tag.h3.contents) - 1].strip()
             vote_description = i.find("div", attrs={"class": "bt-teaser-haupttext"}).text.strip()
 
+            # create instance & assign attributes
             vote = Vote()
-            vote.id = str(vote_id)
+            vote.id = vote_id
             vote.votes = votes
             vote.date = vote_date
             vote.genre = vote_genre
