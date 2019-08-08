@@ -32,4 +32,5 @@ class IndividualVoting(models.Model):
     vote = models.CharField(max_length=80)
 
     class Meta:
+        # combined primary key
         unique_together = (("politician", "voting",))

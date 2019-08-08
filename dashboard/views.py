@@ -1,9 +1,8 @@
-from django.shortcuts import render, HttpResponse
+from typing import List, Union, Dict
+from django.shortcuts import render
 from dashboard.models import Voting, IndividualVoting, Politician
 import datetime
-from dateutil.relativedelta import relativedelta
 from django.db.models import Count
-from django.utils.timezone import now
 from urllib.parse import unquote
 from django.views.decorators.http import require_http_methods
 from dashboard.forms import DateForm
@@ -14,14 +13,14 @@ from dashboard.forms import DateForm
 # TODO: date_form aus den views auslagern
 @require_http_methods(["GET", "POST"])
 def index(request):
-    vote_options = ['Ja', 'Nein', 'Enthalten', 'Nicht abgegeben']
-    date_form = DateForm()
+    vote_options: List[str] = ['Ja', 'Nein', 'Enthalten', 'Nicht abgegeben']
+    date_form: DateForm = DateForm()
 
     # datetime format must be'%d-%m-%Y'
-    start_date = date_form.fields['start_date'].initial
-    start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
-    end_date = date_form.fields['end_date'].initial
-    end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y').date()
+    start_date: str = date_form.fields['start_date'].initial
+    start_date: datetime.date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
+    end_date: str = date_form.fields['end_date'].initial
+    end_date: datetime.date = datetime.datetime.strptime(end_date, '%d-%m-%Y').date()
 
     if request.method == "POST":
         date_form = DateForm(request.POST)
@@ -234,7 +233,7 @@ def faction_votes(request, name):
             if objects.get(genre).get(vote):
                 # print(f"set {faction}'s vote '{vote}' to {objects[faction][vote]}")
                 genre_votes_count[vote_options.index(vote)][idx] = objects[genre][vote]
-
+    print(objects)
     return render(request, 'dashboard/faction_votes.html', locals())
 
 

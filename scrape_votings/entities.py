@@ -1,3 +1,4 @@
+from typing import Dict
 from json import JSONEncoder, dumps
 
 
@@ -19,12 +20,12 @@ class Vote:
                 "votes": self.votes
                 }
 
-    id = ""
-    votes = {}
-    date = ""
-    genre = ""
-    topic = ""
-    description = ""
+    id: str = ""
+    votes: Dict[str, str] = {}
+    date: str = ""
+    genre: str = ""
+    topic: str = ""
+    description: str = ""
 
 
 class Faction:

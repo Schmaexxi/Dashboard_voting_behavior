@@ -1,21 +1,24 @@
+from typing import Union, Dict, List
 from urllib.request import urlopen, HTTPError, URLError
 from json import dump
 import sys
 from socket import timeout
 import logging
 from literals import path_logging_file
+from http.client import HTTPResponse
 
 
-def try_open(url):
+def try_open(url: str) -> HTTPResponse:
     """
     custom exception-endowed function for opening urls
     @params:
         url        - Required   : page to request
     """
-    success = False
+    success: bool = False
+    page: Union[HTTPResponse, None] = None
     while not success:
         try:
-            page = urlopen(url)
+            page: HTTPResponse = urlopen(url)
             success = True
         except HTTPError as e:
             print("HTTPError code:  ", e.code)
@@ -27,7 +30,7 @@ def try_open(url):
 
 
 # ensuring ascii encoding in json data
-def json_dump(path, data, **kwargs):
+def json_dump(path: str, data: Dict[str, List[Union[Dict[str, Union[str, int]], int]]], **kwargs):
     with open(path, 'w+', encoding="utf-8") as outfile:
         dump(data, outfile, indent=4, ensure_ascii=False, **kwargs)
 
@@ -61,14 +64,14 @@ def print_progress(iteration, total, prefix='',
 
 
 # https://stackoverflow.com/questions/7621897/python-logging-module-globally
-def setup_custom_logger(name):
-    formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
-                                  datefmt='%Y-%m-%d %H:%M:%S')
-    handler = logging.FileHandler(path_logging_file, mode='a')
+def setup_custom_logger(name: str) -> logging.Logger:
+    formatter: logging.Formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
+                                                     datefmt='%Y-%m-%d %H:%M:%S')
+    handler: logging.FileHandler = logging.FileHandler(path_logging_file, mode='a')
     handler.setFormatter(formatter)
     # screen_handler = logging.StreamHandler(stream=sys.stdout)
     # screen_handler.setFormatter(formatter)
-    logger = logging.getLogger(name)
+    logger: logging.Logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
     logger.addHandler(handler)
     # logger.addHandler(screen_handler)
