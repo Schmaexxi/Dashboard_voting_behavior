@@ -47,7 +47,7 @@ python manage.py runserver <port>
 
 * [Django](https://www.djangoproject.com/) - The web framework used
 * [Chart.js](https://www.chartjs.org/) - A JavaScript framework for creating graphs
-* [Daterangepicker](http://www.daterangepicker.com/) - A JavaScriptFramework for date selection
+* [Daterangepicker](http://www.daterangepicker.com/) - A JavaScript framework for date selection
 
 ## Author
 
