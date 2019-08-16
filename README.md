@@ -51,6 +51,6 @@ python manage.py runserver <port>
 
 ## Author
 
-* **Maximilian Langknecht**
+* **Maximilian Langknecht** [Email](langknecht@stud.uni-heidelberg.de)
 
 
