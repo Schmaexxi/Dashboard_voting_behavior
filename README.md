@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 ### Installing and Deployment
 
-Navigate to the downloaded/cloned repository. To execute the scraping scripts that will get the data from [Bundestagsabstimmungen](https://www.bundestag.de/abstimmung) run
+Navigate to the downloaded/cloned repository. To execute the scraping scripts that will get the data from [Bundestagsabstimmungen](https://www.bundestag.de/abstimmung) run:
 
 ```
 python scrape_voting/scrape_individual_voting.py
@@ -43,19 +43,11 @@ Finally, we can start the app on your specified port with:
 python manage.py runserver <port>
 ```
 
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
 ## Built With
 
-*[Django](https://www.djangoproject.com/) - The web framework used
-*[Chart.js](https://www.chartjs.org/) - A JavaScript framework for creating graphs
-*[Daterangepicker](http://www.daterangepicker.com/) - A JavaScriptFramework for date selection
+* [Django](https://www.djangoproject.com/) - The web framework used
+* [Chart.js](https://www.chartjs.org/) - A JavaScript framework for creating graphs
+* [Daterangepicker](http://www.daterangepicker.com/) - A JavaScriptFramework for date selection
 
 ## Author
 
