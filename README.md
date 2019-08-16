@@ -20,7 +20,7 @@ Navigate to the downloaded/cloned repository. To execute the scraping scripts th
 python scrape_voting/scrape_individual_voting.py
 ```
 
-Set database config in settings.py to match your PostgreSQL instance. Make sure database exists and a connection can be established before the next steps.
+Set database config in settings.py to match your PostgreSQL instance. Make sure a database exists and a connection can be established before the next steps.
 If the name, user or his password of your database deviates from the predefined ones in lines **152** to **154** of *fill_database.py*, change them accordingly.
 
 The following command creates the SQL code for creating or altering the database tables:
