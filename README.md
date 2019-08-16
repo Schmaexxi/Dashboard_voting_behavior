@@ -8,10 +8,8 @@ Download or clone the repository to your local machine.
 
 ### Prerequisites
 Make sure you have a running PostgreSQL server and Python3 installed. You may also need to install some python packages. Run
-
-pip install -r requirements.txt
 ```
-run requirements.txt
+pip install -r requirements.txt
 ```
 
 ### Installing and Deployment
